@@ -68,6 +68,8 @@ export const getPotentialMatches = async (currentUserId: string, userData: User)
 
 export const likeUser = async (currentUserId: string, likedUserId: string): Promise<boolean> => {
   try {
+    console.log('likeUser called:', { currentUserId, likedUserId });
+    
     // Validate user IDs
     if (!validateUserId(currentUserId) || !validateUserId(likedUserId)) {
       throw new Error('Invalid user ID');
@@ -81,9 +83,17 @@ export const likeUser = async (currentUserId: string, likedUserId: string): Prom
 
     // Add to current user's liked list
     const currentUserRef = doc(db, 'users', currentUserId);
-    await updateDoc(currentUserRef, {
-      likedUsers: arrayUnion(likedUserId)
-    });
+    console.log('Attempting to update user document:', { currentUserId, likedUserId });
+    
+    try {
+      await updateDoc(currentUserRef, {
+        likedUsers: arrayUnion(likedUserId)
+      });
+      console.log('Successfully added to current user\'s liked list');
+    } catch (updateError) {
+      console.error('Error updating user document:', updateError);
+      throw updateError;
+    }
 
     // Check if it's a mutual like
     const likedUserRef = doc(db, 'users', likedUserId);
@@ -91,12 +101,22 @@ export const likeUser = async (currentUserId: string, likedUserId: string): Prom
     
     if (likedUserDoc.exists()) {
       const likedUserData = likedUserDoc.data() as User;
+      console.log('Liked user data:', { 
+        likedUsers: likedUserData.likedUsers, 
+        includesCurrentUser: likedUserData.likedUsers.includes(currentUserId) 
+      });
       
       if (likedUserData.likedUsers.includes(currentUserId)) {
+        console.log('Mutual like detected! Creating match...');
         // It's a match! Create match document
-        await createMatch(currentUserId, likedUserId);
+        const matchId = await createMatch(currentUserId, likedUserId);
+        console.log('Match created with ID:', matchId);
         return true; // Return true to indicate a match
+      } else {
+        console.log('No mutual like yet');
       }
+    } else {
+      console.log('Liked user document not found');
     }
 
     return false; // No match yet
@@ -131,22 +151,37 @@ export const passUser = async (currentUserId: string, passedUserId: string): Pro
 
 export const createMatch = async (userId1: string, userId2: string): Promise<string> => {
   try {
+    console.log('Creating match between:', { userId1, userId2 });
+    
     const matchRef = await addDoc(collection(db, 'matches'), {
       users: [userId1, userId2],
       createdAt: new Date()
     });
+    console.log('Match document created with ID:', matchRef.id);
 
     // Add match to both users' matches array
     const user1Ref = doc(db, 'users', userId1);
     const user2Ref = doc(db, 'users', userId2);
     
-    await updateDoc(user1Ref, {
-      matches: arrayUnion(matchRef.id)
-    });
+    try {
+      await updateDoc(user1Ref, {
+        matches: arrayUnion(matchRef.id)
+      });
+      console.log('Successfully added match to user1 matches');
+    } catch (error) {
+      console.error('Error adding match to user1:', error);
+      throw error;
+    }
     
-    await updateDoc(user2Ref, {
-      matches: arrayUnion(matchRef.id)
-    });
+    try {
+      await updateDoc(user2Ref, {
+        matches: arrayUnion(matchRef.id)
+      });
+      console.log('Successfully added match to user2 matches');
+    } catch (error) {
+      console.error('Error adding match to user2:', error);
+      throw error;
+    }
 
     return matchRef.id;
   } catch (error) {
