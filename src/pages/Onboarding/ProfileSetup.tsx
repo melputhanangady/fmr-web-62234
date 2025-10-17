@@ -152,7 +152,12 @@ const ProfileSetup: React.FC = () => {
           matches: userData.matches
         };
         
+        console.log('Creating user document for:', currentUser.uid);
+        console.log('Profile data to save:', profileData);
+        
         await setDoc(doc(db, 'users', currentUser.uid), profileData);
+        console.log('User document created successfully');
+        
         toast({
           title: "Success",
           description: "Profile created successfully! Photos uploaded to cloud storage.",

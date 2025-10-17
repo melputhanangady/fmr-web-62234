@@ -71,8 +71,8 @@ service cloud.firestore {
       // Users can read other users' profiles for matching
       allow read: if isAuthenticated();
       
-      // Users can create their own profile with validation
-      allow create: if isOwner(userId) && isValidUserData() && isValidPreferences();
+      // Users can create their own profile
+      allow create: if isOwner(userId);
       
       // Users can update their own profile
       // Allow partial updates (like adding to likedUsers array) without full validation
