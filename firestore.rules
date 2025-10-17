@@ -71,9 +71,6 @@ service cloud.firestore {
              request.resource.data.read is bool;
     }
     
-    function isUserInMatch(matchId) {
-      return request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
-    }
     
     // Users collection rules
     match /users/{userId} {
@@ -95,29 +92,39 @@ service cloud.firestore {
     
     // Matches collection rules
     match /matches/{matchId} {
-      // Only matched users can read/write their matches
-      allow read, write: if isAuthenticated() && 
-        isUserInMatch(matchId) && 
-        isValidMatch();
+      // Users can read matches they're part of
+      allow read: if isAuthenticated() && 
+        request.auth.uid in resource.data.users;
       
-      // Prevent users from creating matches they're not part of
+      // Users can create matches they're part of
       allow create: if isAuthenticated() && 
         request.auth.uid in request.resource.data.users &&
         isValidMatch();
+      
+      // Users can update matches they're part of (for future features)
+      allow update: if isAuthenticated() && 
+        request.auth.uid in resource.data.users;
+      
+      // Users can delete matches they're part of
+      allow delete: if isAuthenticated() && 
+        request.auth.uid in resource.data.users;
     }
     
     // Messages subcollection rules
     match /messages/{matchId}/messages/{messageId} {
-      // Only matched users can read/write messages
-      allow read, write: if isAuthenticated() && 
-        isUserInMatch(matchId) && 
+      // Users can read messages in matches they're part of
+      allow read: if isAuthenticated() && 
+        request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+      
+      // Users can create messages in matches they're part of
+      allow create: if isAuthenticated() && 
+        request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users &&
         isValidMessage() &&
-        // Ensure sender is the authenticated user
         request.resource.data.senderId == request.auth.uid;
       
-      // Allow updating read status
+      // Users can update read status of messages
       allow update: if isAuthenticated() && 
-        isUserInMatch(matchId) && 
+        request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users &&
         request.resource.data.keys().hasOnly(['read']) &&
         request.resource.data.read is bool;
     }
