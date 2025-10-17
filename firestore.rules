@@ -1,0 +1,149 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for validation
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['name', 'age', 'bio', 'city', 'interests', 'photos', 'preferences', 'likedUsers', 'passedUsers', 'matches', 'createdAt']) &&
+             request.resource.data.name is string &&
+             request.resource.data.name.size() >= 2 &&
+             request.resource.data.name.size() <= 50 &&
+             request.resource.data.age is int &&
+             request.resource.data.age >= 18 &&
+             request.resource.data.age <= 100 &&
+             request.resource.data.bio is string &&
+             request.resource.data.bio.size() >= 10 &&
+             request.resource.data.bio.size() <= 500 &&
+             request.resource.data.city is string &&
+             request.resource.data.city.size() >= 2 &&
+             request.resource.data.city.size() <= 50 &&
+             request.resource.data.interests is list &&
+             request.resource.data.interests.size() >= 1 &&
+             request.resource.data.interests.size() <= 10 &&
+             request.resource.data.photos is list &&
+             request.resource.data.photos.size() <= 6 &&
+             request.resource.data.preferences is map &&
+             request.resource.data.likedUsers is list &&
+             request.resource.data.passedUsers is list &&
+             request.resource.data.matches is list &&
+             request.resource.data.createdAt is timestamp;
+    }
+    
+    function isValidPreferences() {
+      return request.resource.data.preferences.keys().hasAll(['minAge', 'maxAge', 'interestedIn', 'cities']) &&
+             request.resource.data.preferences.minAge is int &&
+             request.resource.data.preferences.minAge >= 18 &&
+             request.resource.data.preferences.minAge <= 100 &&
+             request.resource.data.preferences.maxAge is int &&
+             request.resource.data.preferences.maxAge >= 18 &&
+             request.resource.data.preferences.maxAge <= 100 &&
+             request.resource.data.preferences.minAge <= request.resource.data.preferences.maxAge &&
+             request.resource.data.preferences.interestedIn in ['men', 'women', 'both'] &&
+             request.resource.data.preferences.cities is list &&
+             request.resource.data.preferences.cities.size() <= 5;
+    }
+    
+    function isValidMatch() {
+      return request.resource.data.keys().hasAll(['users', 'createdAt']) &&
+             request.resource.data.users is list &&
+             request.resource.data.users.size() == 2 &&
+             request.resource.data.users[0] is string &&
+             request.resource.data.users[1] is string &&
+             request.resource.data.users[0] != request.resource.data.users[1] &&
+             request.resource.data.createdAt is timestamp;
+    }
+    
+    function isValidMessage() {
+      return request.resource.data.keys().hasAll(['senderId', 'text', 'timestamp', 'read']) &&
+             request.resource.data.senderId is string &&
+             request.resource.data.text is string &&
+             request.resource.data.text.size() >= 1 &&
+             request.resource.data.text.size() <= 1000 &&
+             request.resource.data.timestamp is timestamp &&
+             request.resource.data.read is bool;
+    }
+    
+    function isUserInMatch(matchId) {
+      return request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+    }
+    
+    // Users collection rules
+    match /users/{userId} {
+      // Users can read/write their own profile with validation
+      allow read, write: if isOwner(userId) && isValidUserData() && isValidPreferences();
+      
+      // Users can read other users' profiles for matching (limited fields only)
+      allow read: if isAuthenticated() && 
+        // Only allow reading specific fields for matching
+        request.resource.data.keys().hasAll(['name', 'age', 'bio', 'city', 'interests', 'photos', 'preferences']);
+      
+      // Prevent users from modifying sensitive fields of other users
+      allow update: if isOwner(userId) && 
+        // Ensure they can't modify other users' liked/passed/matches arrays maliciously
+        request.resource.data.likedUsers == resource.data.likedUsers ||
+        request.resource.data.passedUsers == resource.data.passedUsers ||
+        request.resource.data.matches == resource.data.matches;
+    }
+    
+    // Matches collection rules
+    match /matches/{matchId} {
+      // Only matched users can read/write their matches
+      allow read, write: if isAuthenticated() && 
+        isUserInMatch(matchId) && 
+        isValidMatch();
+      
+      // Prevent users from creating matches they're not part of
+      allow create: if isAuthenticated() && 
+        request.auth.uid in request.resource.data.users &&
+        isValidMatch();
+    }
+    
+    // Messages subcollection rules
+    match /messages/{matchId}/messages/{messageId} {
+      // Only matched users can read/write messages
+      allow read, write: if isAuthenticated() && 
+        isUserInMatch(matchId) && 
+        isValidMessage() &&
+        // Ensure sender is the authenticated user
+        request.resource.data.senderId == request.auth.uid;
+      
+      // Allow updating read status
+      allow update: if isAuthenticated() && 
+        isUserInMatch(matchId) && 
+        request.resource.data.keys().hasOnly(['read']) &&
+        request.resource.data.read is bool;
+    }
+    
+    // Admin collection (for future admin features)
+    match /admin/{document=**} {
+      // Only allow admin access (implement admin role checking)
+      allow read, write: if false; // Disabled for now
+    }
+    
+    // Reports collection (for user reporting)
+    match /reports/{reportId} {
+      allow create: if isAuthenticated() && 
+        request.resource.data.keys().hasAll(['reporterId', 'reportedUserId', 'reason', 'timestamp']) &&
+        request.resource.data.reporterId == request.auth.uid &&
+        request.resource.data.reportedUserId is string &&
+        request.resource.data.reason is string &&
+        request.resource.data.timestamp is timestamp;
+      
+      allow read: if false; // Only admins should read reports
+    }
+    
+    // Analytics collection (for app analytics)
+    match /analytics/{document=**} {
+      allow write: if isAuthenticated(); // Allow users to write analytics events
+      allow read: if false; // Only admins should read analytics
+    }
+  }
+}

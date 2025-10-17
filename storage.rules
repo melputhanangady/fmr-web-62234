@@ -1,0 +1,78 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions for validation
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidImageSize() {
+      return request.resource.size <= 5 * 1024 * 1024; // 5MB max
+    }
+    
+    function isValidFileName() {
+      return request.resource.name.matches('.*\\.(jpg|jpeg|png|gif|webp)$');
+    }
+    
+    // User profile photos
+    match /users/{userId}/photos/{photoId} {
+      // Users can upload their own profile photos
+      allow write: if isOwner(userId) && 
+        isValidImageType() && 
+        isValidImageSize() && 
+        isValidFileName();
+      
+      // Users can read their own photos
+      allow read: if isOwner(userId);
+      
+      // All authenticated users can read photos for matching
+      allow read: if isAuthenticated();
+      
+      // Users can delete their own photos
+      allow delete: if isOwner(userId);
+    }
+    
+    // Temporary uploads (for processing)
+    match /temp/{userId}/{allPaths=**} {
+      allow write: if isOwner(userId) && 
+        isValidImageType() && 
+        isValidImageSize();
+      
+      allow read, delete: if isOwner(userId);
+    }
+    
+    // Chat media (for future implementation)
+    match /chat/{matchId}/media/{mediaId} {
+      // Only matched users can upload/read chat media
+      allow write: if isAuthenticated() && 
+        isValidImageType() && 
+        isValidImageSize() &&
+        // Verify user is in the match (would need to check Firestore)
+        true; // Simplified for now
+      
+      allow read: if isAuthenticated();
+      
+      allow delete: if isAuthenticated();
+    }
+    
+    // Admin uploads (for future admin features)
+    match /admin/{allPaths=**} {
+      allow read, write: if false; // Disabled for now
+    }
+    
+    // Public assets (for app icons, etc.)
+    match /public/{allPaths=**} {
+      allow read: if true; // Public read access
+      allow write: if false; // No public write access
+    }
+  }
+}

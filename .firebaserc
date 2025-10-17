@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "staging": "fmr-web-62234",
+    "default": "fmr-web-62234"
+  },
+  "targets": {},
+  "etags": {}
+}
