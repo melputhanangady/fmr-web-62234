@@ -77,20 +77,20 @@ service cloud.firestore {
     
     // Users collection rules
     match /users/{userId} {
-      // Users can read/write their own profile with validation
-      allow read, write: if isOwner(userId) && isValidUserData() && isValidPreferences();
+      // Users can read their own profile
+      allow read: if isOwner(userId);
       
-      // Users can read other users' profiles for matching (limited fields only)
-      allow read: if isAuthenticated() && 
-        // Only allow reading specific fields for matching
-        request.resource.data.keys().hasAll(['name', 'age', 'bio', 'city', 'interests', 'photos', 'preferences']);
+      // Users can read other users' profiles for matching
+      allow read: if isAuthenticated();
       
-      // Prevent users from modifying sensitive fields of other users
-      allow update: if isOwner(userId) && 
-        // Ensure they can't modify other users' liked/passed/matches arrays maliciously
-        request.resource.data.likedUsers == resource.data.likedUsers ||
-        request.resource.data.passedUsers == resource.data.passedUsers ||
-        request.resource.data.matches == resource.data.matches;
+      // Users can create their own profile with validation
+      allow create: if isOwner(userId) && isValidUserData() && isValidPreferences();
+      
+      // Users can update their own profile with validation
+      allow update: if isOwner(userId) && isValidUserData() && isValidPreferences();
+      
+      // Users can delete their own profile
+      allow delete: if isOwner(userId);
     }
     
     // Matches collection rules
