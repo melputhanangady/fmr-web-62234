@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
-import toast from 'react-hot-toast';
+import { useToast } from '@/hooks/use-toast';
 import { compressImage, shouldCompressImage } from '../../utils/imageCompression';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../config/firebase';
+import { isDemoMode } from '../../utils/demoMode';
 
 interface PhotoUploadProps {
   onPhotosChange: (urls: string[]) => void;
@@ -15,6 +18,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files) return;
@@ -23,7 +27,11 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
     const totalPhotos = currentPhotos.length + newFiles.length;
 
     if (totalPhotos > maxPhotos) {
-      toast.error(`You can only upload up to ${maxPhotos} photos`);
+      toast({
+        title: "Too Many Photos",
+        description: `You can only upload up to ${maxPhotos} photos`,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -42,26 +50,50 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
         }
 
         // Compress image if needed to reduce file size
+        let processedFile: File;
         if (shouldCompressImage(file)) {
-          return compressImage(file);
+          const compressedDataUrl = await compressImage(file);
+          // Convert data URL back to File for Firebase upload
+          const response = await fetch(compressedDataUrl);
+          processedFile = await response.blob() as File;
         } else {
-          // For smaller files, use original
+          processedFile = file;
+        }
+
+        // Upload to Firebase Storage if not in demo mode
+        if (!isDemoMode()) {
+          const timestamp = Date.now();
+          const fileName = `photo_${timestamp}_${Math.random().toString(36).substring(2)}.jpg`;
+          const storageRef = ref(storage, `users/${fileName}`);
+          
+          await uploadBytes(storageRef, processedFile);
+          const downloadURL = await getDownloadURL(storageRef);
+          return downloadURL;
+        } else {
+          // Demo mode: convert to data URL
           return new Promise<string>((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
               resolve(e.target?.result as string);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(processedFile);
           });
         }
       });
 
       const newUrls = await Promise.all(uploadPromises);
       onPhotosChange([...currentPhotos, ...newUrls]);
-      toast.success(`${newUrls.length} photo(s) uploaded successfully!`);
+      toast({
+        title: "Success",
+        description: `${newUrls.length} photo(s) uploaded successfully!`,
+      });
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Failed to upload photos');
+      toast({
+        title: "Upload Failed",
+        description: error.message || 'Failed to upload photos',
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
     }

@@ -137,14 +137,14 @@ const ProfileSetup: React.FC = () => {
         navigate('/discover');
       } else {
         // In production mode, save to Firebase
-        // Store profile without photos to avoid size limits
+        // Store profile with photos in production mode
         const profileData = {
           name: userData.name,
           age: userData.age,
           bio: userData.bio,
           city: userData.city,
           interests: userData.interests,
-          photos: [], // Photos stored locally for now
+          photos: userData.photos, // Photos are now Firebase Storage URLs
           preferences: userData.preferences,
           createdAt: userData.createdAt,
           likedUsers: userData.likedUsers,
@@ -155,7 +155,7 @@ const ProfileSetup: React.FC = () => {
         await setDoc(doc(db, 'users', currentUser.uid), profileData);
         toast({
           title: "Success",
-          description: "Profile created successfully! (Photos saved locally)",
+          description: "Profile created successfully! Photos uploaded to cloud storage.",
         });
         navigate('/discover');
       }
