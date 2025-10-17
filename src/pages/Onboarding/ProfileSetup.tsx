@@ -264,6 +264,7 @@ const ProfileSetup: React.FC = () => {
               onPhotosChange={(photos) => handleInputChange('photos', photos)}
               maxPhotos={6}
               currentPhotos={formData.photos}
+              userId={currentUser?.uid}
             />
           </div>
         );

@@ -9,12 +9,14 @@ interface PhotoUploadProps {
   onPhotosChange: (urls: string[]) => void;
   maxPhotos?: number;
   currentPhotos?: string[];
+  userId?: string;
 }
 
 const PhotoUpload: React.FC<PhotoUploadProps> = ({ 
   onPhotosChange, 
   maxPhotos = 6, 
-  currentPhotos = [] 
+  currentPhotos = [],
+  userId
 }) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,8 +65,9 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({
         // Upload to Firebase Storage if not in demo mode
         if (!isDemoMode()) {
           const timestamp = Date.now();
-          const fileName = `photo_${timestamp}_${Math.random().toString(36).substring(2)}.jpg`;
-          const storageRef = ref(storage, `users/${fileName}`);
+          const photoId = `photo_${timestamp}_${Math.random().toString(36).substring(2)}.jpg`;
+          // Use the path structure expected by storage rules: /users/{userId}/photos/{photoId}
+          const storageRef = ref(storage, `users/${userId}/photos/${photoId}`);
           
           await uploadBytes(storageRef, processedFile);
           const downloadURL = await getDownloadURL(storageRef);

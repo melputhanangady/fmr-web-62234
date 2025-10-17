@@ -403,6 +403,7 @@ const ProfileSettings: React.FC = () => {
                     onPhotosChange={(photos) => handleInputChange('photos', photos)}
                     maxPhotos={6}
                     currentPhotos={profile.photos}
+                    userId={currentUser?.uid}
                   />
                 </div>
 
