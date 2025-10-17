@@ -61,38 +61,79 @@ const ProfileSettings: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.log('No current user, redirecting to login');
+      navigate('/login');
+      return;
+    }
 
     const loadProfile = async () => {
       try {
         setLoading(true);
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        console.log('Loading profile for user:', currentUser.uid);
         
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          // Get photos from localStorage with fallback to Firestore
-          const photos = getUserPhotos(currentUser.uid, userData.photos || []);
+        if (isDemoMode()) {
+          console.log('Loading demo profile from localStorage');
+          const demoProfile = localStorage.getItem('demo-user-profile');
+          if (demoProfile) {
+            const userData = JSON.parse(demoProfile);
+            setProfile({
+              name: userData.name || '',
+              age: userData.age || 25,
+              bio: userData.bio || '',
+              city: userData.city || '',
+              interests: userData.interests || [],
+              photos: userData.photos || [],
+              preferences: userData.preferences || {
+                minAge: 18,
+                maxAge: 35,
+                interestedIn: 'both',
+                cities: []
+              }
+            });
+          } else {
+            console.log('No demo profile found, using defaults');
+            // Keep default profile values
+          }
+        } else {
+          console.log('Loading profile from Firestore');
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           
-          setProfile({
-            name: userData.name || '',
-            age: userData.age || 25,
-            bio: userData.bio || '',
-            city: userData.city || '',
-            interests: userData.interests || [],
-            photos: photos,
-            preferences: userData.preferences || {
-              minAge: 18,
-              maxAge: 35,
-              interestedIn: 'both',
-              cities: []
-            }
-          });
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            console.log('Profile data loaded:', userData);
+            // Get photos from localStorage with fallback to Firestore
+            const photos = getUserPhotos(currentUser.uid, userData.photos || []);
+            
+            setProfile({
+              name: userData.name || '',
+              age: userData.age || 25,
+              bio: userData.bio || '',
+              city: userData.city || '',
+              interests: userData.interests || [],
+              photos: photos,
+              preferences: userData.preferences || {
+                minAge: 18,
+                maxAge: 35,
+                interestedIn: 'both',
+                cities: []
+              }
+            });
+          } else {
+            console.log('No profile document found in Firestore');
+            toast({
+              title: "No Profile Found",
+              description: "Please complete your profile setup first",
+              variant: "destructive",
+            });
+            navigate('/onboarding');
+          }
         }
       } catch (error) {
         console.error('Error loading profile:', error);
         toast({
           title: "Error",
-          description: "Failed to load profile",
+          description: `Failed to load profile: ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: "destructive",
         });
       } finally {
@@ -101,7 +142,7 @@ const ProfileSettings: React.FC = () => {
     };
 
     loadProfile();
-  }, [currentUser]);
+  }, [currentUser, navigate]);
 
   const handleInputChange = (field: string, value: any) => {
     setProfile(prev => ({
