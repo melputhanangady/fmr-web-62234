@@ -76,19 +76,11 @@ const ProfileSetup: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      console.log('handleSubmit called');
-      if (!currentUser) {
-        console.log('No current user');
-        return;
-      }
+    if (!currentUser) return;
 
     // Rate limiting check
-    console.log('Checking rate limit...');
     const rateLimitResult = rateLimiter.isAllowed(currentUser.uid, 'profile_update');
-    console.log('Rate limit result:', rateLimitResult);
     if (!rateLimitResult.allowed) {
-      console.log('Rate limit exceeded');
       toast({
         title: "Rate Limit Exceeded",
         description: "Too many profile updates. Please wait before trying again.",
@@ -98,7 +90,6 @@ const ProfileSetup: React.FC = () => {
     }
 
     // Sanitize input data
-    console.log('Sanitizing input data...');
     const sanitizedData = {
       ...formData,
       name: InputSanitizer.sanitizeText(formData.name),
@@ -106,10 +97,8 @@ const ProfileSetup: React.FC = () => {
       city: InputSanitizer.sanitizeText(formData.city),
       interests: formData.interests.map(interest => InputSanitizer.sanitizeText(interest))
     };
-    console.log('Sanitized data:', sanitizedData);
 
     // Validate the profile data (photos not required for initial setup)
-    console.log('Validating profile data...');
     const validationResult = validateUserProfile({
       ...sanitizedData,
       age: parseInt(formData.age),
@@ -117,10 +106,7 @@ const ProfileSetup: React.FC = () => {
       preferences: formData.preferences
     }, false); // Make photos optional for initial setup
 
-    console.log('Validation result:', validationResult);
-
     if (!validationResult.isValid) {
-      console.log('Validation failed:', validationResult.errors);
       toast({
         title: "Validation Failed",
         description: validationResult.errors.join(', '),
@@ -130,10 +116,8 @@ const ProfileSetup: React.FC = () => {
     }
 
     try {
-      console.log('Setting loading to true...');
       setLoading(true);
       
-      console.log('Creating user data...');
       const userData = {
         ...sanitizedData,
         age: parseInt(formData.age),
@@ -142,7 +126,6 @@ const ProfileSetup: React.FC = () => {
         passedUsers: [],
         matches: []
       };
-      console.log('User data created:', userData);
 
       if (isDemoMode()) {
         // In demo mode, just store in localStorage
@@ -186,18 +169,9 @@ const ProfileSetup: React.FC = () => {
     } finally {
       setLoading(false);
     }
-    } catch (outerError: any) {
-      console.error('Outer error in handleSubmit:', outerError);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    }
   };
 
   const renderStep = () => {
-    console.log('Current step:', step);
     switch (step) {
       case 1:
         return (
@@ -434,26 +408,14 @@ const ProfileSetup: React.FC = () => {
           
           {step < 4 ? (
             <button
-              onClick={() => {
-                console.log('Next button clicked, current step:', step);
-                setStep(step + 1);
-              }}
+              onClick={() => setStep(step + 1)}
               className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
             >
               Next
             </button>
           ) : (
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Complete Profile button clicked, step:', step);
-                console.log('Button element:', e.target);
-                console.log('Loading state:', loading);
-                console.log('Current user:', currentUser);
-                alert('Button clicked! Check console for details.');
-                handleSubmit();
-              }}
+              onClick={handleSubmit}
               disabled={loading}
               className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-400 transition-colors"
             >
