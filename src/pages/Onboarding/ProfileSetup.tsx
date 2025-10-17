@@ -93,13 +93,13 @@ const ProfileSetup: React.FC = () => {
       interests: formData.interests.map(interest => InputSanitizer.sanitizeText(interest))
     };
 
-    // Validate the profile data
+    // Validate the profile data (photos not required for initial setup)
     const validationResult = validateUserProfile({
       ...sanitizedData,
       age: parseInt(formData.age),
       photos: formData.photos,
       preferences: formData.preferences
-    });
+    }, false); // Make photos optional for initial setup
 
     if (!validationResult.isValid) {
       toast.error(`Validation failed: ${validationResult.errors.join(', ')}`);

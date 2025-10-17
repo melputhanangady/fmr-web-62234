@@ -125,14 +125,14 @@ export const validateInterests = (interests: string[]): ValidationResult => {
   };
 };
 
-export const validatePhotos = (photos: string[]): ValidationResult => {
+export const validatePhotos = (photos: string[], required: boolean = true): ValidationResult => {
   const errors: string[] = [];
   
-  if (!photos || photos.length === 0) {
+  if (required && (!photos || photos.length === 0)) {
     errors.push('At least one photo is required');
-  } else if (photos.length > 6) {
+  } else if (photos && photos.length > 6) {
     errors.push('Maximum 6 photos allowed');
-  } else {
+  } else if (photos && photos.length > 0) {
     photos.forEach((photo, index) => {
       if (!photo || photo.trim().length === 0) {
         errors.push(`Photo ${index + 1} is required`);
@@ -322,7 +322,7 @@ export const validateUserProfile = (profile: {
     interestedIn: string;
     cities: string[];
   };
-}): ValidationResult => {
+}, requirePhotos: boolean = true): ValidationResult => {
   const allErrors: string[] = [];
   
   // Validate each field
@@ -331,7 +331,7 @@ export const validateUserProfile = (profile: {
   const bioResult = validateBio(profile.bio);
   const cityResult = validateCity(profile.city);
   const interestsResult = validateInterests(profile.interests);
-  const photosResult = validatePhotos(profile.photos);
+  const photosResult = validatePhotos(profile.photos, requirePhotos);
   const preferencesResult = validatePreferences(profile.preferences);
   
   // Collect all errors
