@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch, debugMutualMatching, fixMissingMatchesForUser } from '../../utils/matchDebugger';
+import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch, debugMutualMatching, fixMissingMatchesForUser, fixMissingMatchesForUserAlternative } from '../../utils/matchDebugger';
 import type { MatchDebugResult } from '../../utils/matchDebugger';
 
 const MatchDebugger: React.FC = () => {
@@ -129,7 +129,8 @@ const MatchDebugger: React.FC = () => {
     
     setFixing(true);
     try {
-      const result = await fixMissingMatchesForUser(userId);
+      // Try the alternative approach first
+      const result = await fixMissingMatchesForUserAlternative(userId);
       setFixResult(result);
       if (result.success) {
         alert(`Fixed missing matches: Found ${result.matchesFound} matches, added ${result.matchesAdded?.length || 0} to user's array`);

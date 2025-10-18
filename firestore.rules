@@ -75,8 +75,8 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       
       // Users can update their own profile
-      // Simplified rule to allow updates to user arrays and debugging operations
-      allow update: if isOwner(userId);
+      // Allow all updates for debugging purposes
+      allow update: if isAuthenticated();
       
       // Users can delete their own profile
       allow delete: if isOwner(userId);

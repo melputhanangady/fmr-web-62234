@@ -498,3 +498,72 @@ export async function fixMissingMatchesForUser(userId: string): Promise<{
     };
   }
 }
+
+/**
+ * Alternative approach: Fix missing matches using setDoc instead of updateDoc
+ */
+export async function fixMissingMatchesForUserAlternative(userId: string): Promise<{
+  success: boolean;
+  error?: string;
+  matchesFound?: number;
+  matchesAdded?: string[];
+}> {
+  try {
+    const matchesAdded: string[] = [];
+    
+    // Get all matches where this user is in the users array
+    const matchesRef = collection(db, 'matches');
+    const matchesQuery = query(matchesRef, where('users', 'array-contains', userId));
+    const matchesSnapshot = await getDocs(matchesQuery);
+    
+    console.log(`Found ${matchesSnapshot.docs.length} matches containing user ${userId}`);
+    
+    // Get user's current matches
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      return {
+        success: false,
+        error: 'User document does not exist'
+      };
+    }
+    
+    const userData = userDoc.data();
+    const currentMatches = userData.matches || [];
+    
+    // Collect all match IDs that should be in user's array
+    const allMatchIds: string[] = [];
+    for (const matchDoc of matchesSnapshot.docs) {
+      const matchId = matchDoc.id;
+      if (!currentMatches.includes(matchId)) {
+        allMatchIds.push(matchId);
+        matchesAdded.push(matchId);
+      }
+    }
+    
+    if (allMatchIds.length > 0) {
+      console.log(`Updating user ${userId} with ${allMatchIds.length} missing matches`);
+      
+      // Use setDoc to update the entire matches array
+      const updatedMatches = [...currentMatches, ...allMatchIds];
+      await setDoc(userRef, {
+        ...userData,
+        matches: updatedMatches
+      }, { merge: true });
+    }
+    
+    return {
+      success: true,
+      matchesFound: matchesSnapshot.docs.length,
+      matchesAdded
+    };
+    
+  } catch (error: any) {
+    console.error('Error fixing missing matches:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
