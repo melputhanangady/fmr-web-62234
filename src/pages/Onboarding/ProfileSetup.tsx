@@ -174,13 +174,14 @@ const ProfileSetup: React.FC = () => {
           description: "Profile created successfully! Photos uploaded to cloud storage.",
         });
         
-        // Add a small delay to ensure Firestore has time to index the document
+        // Add a longer delay to ensure Firestore has time to index the document
         console.log('Waiting for Firestore indexing...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         console.log('About to navigate to /discover...');
-        // Use window.location.href to force a full page reload and bypass cache issues
-        window.location.href = '/discover';
+        // Use window.location.href with a timestamp to force a full page reload and bypass cache issues
+        const timestamp = Date.now();
+        window.location.href = `/discover?t=${timestamp}`;
         console.log('Navigation command executed');
       }
     } catch (error: any) {
