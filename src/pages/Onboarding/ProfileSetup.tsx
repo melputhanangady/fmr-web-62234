@@ -176,10 +176,11 @@ const ProfileSetup: React.FC = () => {
         
         // Add a small delay to ensure Firestore has time to index the document
         console.log('Waiting for Firestore indexing...');
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         console.log('About to navigate to /discover...');
-        navigate('/discover');
+        // Use window.location.href to force a full page reload and bypass cache issues
+        window.location.href = '/discover';
         console.log('Navigation command executed');
       }
     } catch (error: any) {
