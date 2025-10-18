@@ -129,13 +129,16 @@ const ProfileSetup: React.FC = () => {
 
       if (isDemoMode()) {
         // In demo mode, just store in localStorage
+        console.log('Demo mode: Storing profile in localStorage');
         localStorage.setItem('demo-user-profile', JSON.stringify(userData));
+        console.log('Demo mode: Profile stored, navigating to discover...');
         toast({
           title: "Success",
           description: "Profile created successfully! (Demo mode)",
         });
         navigate('/discover');
       } else {
+        console.log('Production mode: Saving to Firebase');
         // In production mode, save to Firebase
         // Store profile with photos in production mode
         const profileData = {
@@ -157,6 +160,10 @@ const ProfileSetup: React.FC = () => {
         
         await setDoc(doc(db, 'users', currentUser.uid), profileData);
         console.log('User document created successfully');
+        
+        // Add a small delay to ensure the document is fully written
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('Navigating to discover page...');
         
         toast({
           title: "Success",
