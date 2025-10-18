@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../config/firebase';
 import PhotoUpload from '../../components/PhotoUpload/PhotoUpload';
@@ -161,9 +161,13 @@ const ProfileSetup: React.FC = () => {
         await setDoc(doc(db, 'users', currentUser.uid), profileData);
         console.log('User document created successfully');
         
-        // Add a longer delay to ensure the document is fully written and indexed
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('Navigating to discover page...');
+        // Verify the profile was created by reading it back
+        console.log('Verifying profile creation...');
+        const verifyDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (!verifyDoc.exists()) {
+          throw new Error('Profile verification failed - document not found after creation');
+        }
+        console.log('Profile verification successful, navigating to discover page...');
         
         toast({
           title: "Success",

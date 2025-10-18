@@ -21,9 +21,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
       return;
     }
 
-    const checkProfile = async (retryCount = 0) => {
+    const checkProfile = async () => {
       try {
-        console.log(`ProtectedRoute: Checking profile for user: ${currentUser.uid} (attempt ${retryCount + 1})`);
+        console.log('ProtectedRoute: Checking profile for user:', currentUser.uid);
         if (isDemoMode()) {
           // In demo mode, check localStorage for profile
           const demoProfile = localStorage.getItem('demo-user-profile');
@@ -34,14 +34,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
           console.log('Production mode: Checking Firestore for user document...');
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           console.log('Firestore check result:', userDoc.exists());
-          
-          // If profile doesn't exist and this is the first attempt, retry once after a delay
-          if (!userDoc.exists() && retryCount === 0) {
-            console.log('Profile not found on first attempt, retrying in 1 second...');
-            setTimeout(() => checkProfile(1), 1000);
-            return;
-          }
-          
           setProfileExists(userDoc.exists());
         }
       } catch (error) {
