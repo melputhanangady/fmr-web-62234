@@ -121,13 +121,13 @@ export const getMatchesWithUsers = async (userId: string): Promise<ChatUser[]> =
               lastMessageTime = lastMessageData.timestamp.toDate();
               
               // Count unread messages (messages not sent by current user)
-              const unreadQuery = query(
-                messagesRef,
-                where('senderId', '!=', userId),
-                where('read', '==', false)
-              );
-              const unreadSnapshot = await getDocs(unreadQuery);
-              unreadCount = unreadSnapshot.size;
+              // Get all messages and filter in application to avoid composite index requirement
+              const allMessagesQuery = query(messagesRef);
+              const allMessagesSnapshot = await getDocs(allMessagesQuery);
+              unreadCount = allMessagesSnapshot.docs.filter(doc => {
+                const data = doc.data();
+                return data.senderId !== userId && data.read === false;
+              }).length;
             }
 
             matches.push({
@@ -159,16 +159,17 @@ export const getMatchesWithUsers = async (userId: string): Promise<ChatUser[]> =
 export const markMessagesAsRead = async (matchId: string, userId: string): Promise<void> => {
   try {
     const messagesRef = collection(db, 'messages', matchId, 'messages');
-    const unreadQuery = query(
-      messagesRef,
-      where('senderId', '!=', userId),
-      where('read', '==', false)
-    );
+    // Get all messages and filter in application to avoid composite index requirement
+    const allMessagesQuery = query(messagesRef);
+    const snapshot = await getDocs(allMessagesQuery);
     
-    const snapshot = await getDocs(unreadQuery);
+    const unreadMessages = snapshot.docs.filter(doc => {
+      const data = doc.data();
+      return data.senderId !== userId && data.read === false;
+    });
+    
     const batch = [];
-    
-    snapshot.docs.forEach(doc => {
+    unreadMessages.forEach(doc => {
       batch.push(updateDoc(doc.ref, { read: true }));
     });
     
