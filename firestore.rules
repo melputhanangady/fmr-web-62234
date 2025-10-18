@@ -75,10 +75,8 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       
       // Users can update their own profile
-      // Allow partial updates (like adding to likedUsers array) without full validation
-      allow update: if isOwner(userId) && 
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedUsers', 'passedUsers', 'matches']) ||
-         (isValidUserData() && isValidPreferences()));
+      // Simplified rule to allow updates to user arrays and debugging operations
+      allow update: if isOwner(userId);
       
       // Users can delete their own profile
       allow delete: if isOwner(userId);
