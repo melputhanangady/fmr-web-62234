@@ -50,11 +50,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
           } else {
             console.log('Profile not found after all retries');
             setProfileExists(false);
+            setHasCheckedProfile(true);
           }
         }
       } catch (error) {
         console.error('Error checking profile:', error);
         setProfileExists(false);
+        setHasCheckedProfile(true);
       } finally {
         setCheckingProfile(false);
       }
