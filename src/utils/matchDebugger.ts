@@ -436,3 +436,69 @@ export async function debugMutualMatching(userId1: string, userId2: string): Pro
     };
   }
 }
+
+/**
+ * Fix missing matches for a specific user by finding all matches they should be part of
+ */
+export async function fixMissingMatchesForUser(userId: string): Promise<{
+  success: boolean;
+  error?: string;
+  matchesFound?: number;
+  matchesAdded?: string[];
+}> {
+  try {
+    const db = getFirestore();
+    const matchesAdded: string[] = [];
+    
+    // Get all matches where this user is in the users array
+    const matchesRef = collection(db, 'matches');
+    const matchesQuery = query(matchesRef, where('users', 'array-contains', userId));
+    const matchesSnapshot = await getDocs(matchesQuery);
+    
+    console.log(`Found ${matchesSnapshot.docs.length} matches containing user ${userId}`);
+    
+    // Get user's current matches
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      return {
+        success: false,
+        error: 'User document does not exist'
+      };
+    }
+    
+    const userData = userDoc.data();
+    const currentMatches = userData.matches || [];
+    
+    // Find matches that should be in user's array but aren't
+    for (const matchDoc of matchesSnapshot.docs) {
+      const matchId = matchDoc.id;
+      const matchData = matchDoc.data();
+      
+      if (!currentMatches.includes(matchId)) {
+        console.log(`Adding missing match ${matchId} to user ${userId}`);
+        
+        // Add match to user's matches array
+        await updateDoc(userRef, {
+          matches: arrayUnion(matchId)
+        });
+        
+        matchesAdded.push(matchId);
+      }
+    }
+    
+    return {
+      success: true,
+      matchesFound: matchesSnapshot.docs.length,
+      matchesAdded
+    };
+    
+  } catch (error: any) {
+    console.error('Error fixing missing matches:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}

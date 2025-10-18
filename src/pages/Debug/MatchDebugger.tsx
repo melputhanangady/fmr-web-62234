@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch, debugMutualMatching } from '../../utils/matchDebugger';
+import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch, debugMutualMatching, fixMissingMatchesForUser } from '../../utils/matchDebugger';
 import type { MatchDebugResult } from '../../utils/matchDebugger';
 
 const MatchDebugger: React.FC = () => {
@@ -10,6 +10,7 @@ const MatchDebugger: React.FC = () => {
   const [fixing, setFixing] = useState(false);
   const [mutualDebugResult, setMutualDebugResult] = useState<any>(null);
   const [userId2, setUserId2] = useState('');
+  const [fixResult, setFixResult] = useState<any>(null);
   const { currentUser } = useAuth();
 
   const handleDebug = async () => {
@@ -123,6 +124,28 @@ const MatchDebugger: React.FC = () => {
     }
   };
 
+  const handleFixMissingMatches = async () => {
+    if (!userId.trim()) return;
+    
+    setFixing(true);
+    try {
+      const result = await fixMissingMatchesForUser(userId);
+      setFixResult(result);
+      if (result.success) {
+        alert(`Fixed missing matches: Found ${result.matchesFound} matches, added ${result.matchesAdded?.length || 0} to user's array`);
+        // Re-debug to show updated results
+        await handleDebug();
+      } else {
+        alert(`Error fixing missing matches: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error fixing missing matches:', error);
+      alert('Error fixing missing matches. Check console for details.');
+    } finally {
+      setFixing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -175,6 +198,14 @@ const MatchDebugger: React.FC = () => {
               className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:bg-gray-300"
             >
               {fixing ? 'Rebuilding...' : 'Rebuild All Matches'}
+            </button>
+            
+            <button
+              onClick={handleFixMissingMatches}
+              disabled={fixing || !userId.trim()}
+              className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 disabled:bg-gray-300"
+            >
+              {fixing ? 'Fixing...' : 'Fix Missing Matches'}
             </button>
           </div>
         </div>
@@ -259,6 +290,41 @@ const MatchDebugger: React.FC = () => {
                 </ul>
               </div>
             )}
+          </div>
+        )}
+
+        {fixResult && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Fix Missing Matches Results</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Results</h3>
+                <div className="space-y-2 text-sm">
+                  <div><strong>Success:</strong> {fixResult.success ? '✅ Yes' : '❌ No'}</div>
+                  {fixResult.matchesFound !== undefined && (
+                    <div><strong>Matches Found:</strong> {fixResult.matchesFound}</div>
+                  )}
+                  {fixResult.matchesAdded && (
+                    <div><strong>Matches Added:</strong> {fixResult.matchesAdded.length}</div>
+                  )}
+                  {fixResult.error && (
+                    <div><strong>Error:</strong> <span className="text-red-600">{fixResult.error}</span></div>
+                  )}
+                </div>
+              </div>
+              
+              {fixResult.matchesAdded && fixResult.matchesAdded.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Added Match IDs</h3>
+                  <div className="space-y-1 text-sm">
+                    {fixResult.matchesAdded.map((matchId: string, index: number) => (
+                      <div key={index} className="text-green-600">• {matchId}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
