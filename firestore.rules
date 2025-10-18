@@ -103,6 +103,12 @@ service cloud.firestore {
         request.auth.uid in resource.data.users;
     }
     
+    // Allow querying matches collection for debugging purposes
+    match /matches/{matchId} {
+      // Allow authenticated users to query matches collection
+      allow list: if isAuthenticated();
+    }
+    
     // Messages subcollection rules
     match /messages/{matchId}/messages/{messageId} {
       // Users can read messages in matches they're part of
