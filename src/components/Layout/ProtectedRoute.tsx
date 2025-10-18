@@ -37,7 +37,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
           
           if (userDoc.exists()) {
             console.log('User document data:', userDoc.data());
+            console.log('Setting profileExists to true...');
             setProfileExists(true);
+            console.log('profileExists state should now be true');
           } else if (retryCount < 2) {
             // If profile doesn't exist and we haven't retried too many times, retry after a delay
             console.log(`Profile not found on attempt ${retryCount + 1}, retrying in ${(retryCount + 1) * 500}ms...`);
