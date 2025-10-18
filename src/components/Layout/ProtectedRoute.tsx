@@ -74,6 +74,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
     return <Navigate to="/login" replace />;
   }
 
+  console.log('ProtectedRoute render: profileExists =', profileExists, 'requireProfile =', requireProfile, 'loading =', loading, 'checkingProfile =', checkingProfile);
+
   if (requireProfile && profileExists === false) {
     console.log('ProtectedRoute: Profile does not exist, redirecting to onboarding');
     console.log('ProtectedRoute: profileExists =', profileExists, 'requireProfile =', requireProfile);
@@ -82,6 +84,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
 
   if (requireProfile && profileExists === true) {
     console.log('ProtectedRoute: Profile exists, allowing access to protected route');
+  }
+
+  // If we're still checking the profile, show loading
+  if (requireProfile && profileExists === null) {
+    console.log('ProtectedRoute: Still checking profile, showing loading...');
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+          <p className="mt-4 text-gray-600">Verifying profile...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
