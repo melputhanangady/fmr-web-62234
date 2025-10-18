@@ -1,4 +1,4 @@
-import { doc, getDoc, getDocs, collection, query, where, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection, query, where, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { User, Match } from '../types';
 
@@ -202,7 +202,6 @@ export async function checkUserInMatch(userId: string, matchId: string): Promise
   userInMatch?: boolean;
 }> {
   try {
-    const db = getFirestore();
     const matchRef = doc(db, 'matches', matchId);
     const matchDoc = await getDoc(matchRef);
     
@@ -237,7 +236,6 @@ export async function fixUserInMatch(userId: string, matchId: string): Promise<{
   error?: string;
 }> {
   try {
-    const db = getFirestore();
     const matchRef = doc(db, 'matches', matchId);
     const matchDoc = await getDoc(matchRef);
     
@@ -283,7 +281,6 @@ export async function debugMutualMatching(userId1: string, userId2: string): Pro
   recommendations?: string[];
 }> {
   try {
-    const db = getFirestore();
     const issues: string[] = [];
     const recommendations: string[] = [];
     
@@ -447,7 +444,6 @@ export async function fixMissingMatchesForUser(userId: string): Promise<{
   matchesAdded?: string[];
 }> {
   try {
-    const db = getFirestore();
     const matchesAdded: string[] = [];
     
     // Get all matches where this user is in the users array
