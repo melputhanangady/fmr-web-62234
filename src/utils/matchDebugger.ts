@@ -55,20 +55,31 @@ export const debugUserMatches = async (userId: string): Promise<MatchDebugResult
     // 2. Check each match document
     for (const matchId of result.matchIds) {
       const matchRef = doc(db, 'matches', matchId);
-      const matchDoc = await getDoc(matchRef);
       
-      if (!matchDoc.exists()) {
+      try {
+        const matchDoc = await getDoc(matchRef);
+        
+        if (!matchDoc.exists()) {
+          result.invalidMatches.push(matchId);
+          result.issues.push(`Match document ${matchId} does not exist`);
+          continue;
+        }
+        
+        const matchData = matchDoc.data();
+        const otherUserId = matchData.users?.find((id: string) => id !== userId);
+        
+        if (!otherUserId) {
+          result.invalidMatches.push(matchId);
+          result.issues.push(`Match ${matchId} has no other user`);
+          continue;
+        }
+      } catch (error: any) {
         result.invalidMatches.push(matchId);
-        result.issues.push(`Match document ${matchId} does not exist`);
-        continue;
-      }
-      
-      const matchData = matchDoc.data();
-      const otherUserId = matchData.users?.find((id: string) => id !== userId);
-      
-      if (!otherUserId) {
-        result.invalidMatches.push(matchId);
-        result.issues.push(`Match ${matchId} has no other user`);
+        if (error.code === 'permission-denied') {
+          result.issues.push(`Permission denied accessing match ${matchId} - user may not be in match users array`);
+        } else {
+          result.issues.push(`Error accessing match ${matchId}: ${error.message}`);
+        }
         continue;
       }
       
@@ -180,3 +191,79 @@ export const rebuildUserMatches = async (userId: string): Promise<string[]> => {
     return [];
   }
 };
+
+/**
+ * Check if a user is properly included in a match document
+ */
+export async function checkUserInMatch(userId: string, matchId: string): Promise<{
+  success: boolean;
+  error?: string;
+  matchData?: any;
+  userInMatch?: boolean;
+}> {
+  try {
+    const db = getFirestore();
+    const matchRef = doc(db, 'matches', matchId);
+    const matchDoc = await getDoc(matchRef);
+    
+    if (!matchDoc.exists()) {
+      return {
+        success: false,
+        error: 'Match document does not exist'
+      };
+    }
+    
+    const matchData = matchDoc.data();
+    const userInMatch = matchData.users?.includes(userId) || false;
+    
+    return {
+      success: true,
+      matchData,
+      userInMatch
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Fix a user not being in a match document's users array
+ */
+export async function fixUserInMatch(userId: string, matchId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const db = getFirestore();
+    const matchRef = doc(db, 'matches', matchId);
+    const matchDoc = await getDoc(matchRef);
+    
+    if (!matchDoc.exists()) {
+      return {
+        success: false,
+        error: 'Match document does not exist'
+      };
+    }
+    
+    const matchData = matchDoc.data();
+    const currentUsers = matchData.users || [];
+    
+    if (!currentUsers.includes(userId)) {
+      await updateDoc(matchRef, {
+        users: arrayUnion(userId)
+      });
+    }
+    
+    return {
+      success: true
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}

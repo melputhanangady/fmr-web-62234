@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { debugUserMatches, fixUserMatches, rebuildUserMatches } from '../../utils/matchDebugger';
+import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch } from '../../utils/matchDebugger';
 import type { MatchDebugResult } from '../../utils/matchDebugger';
 
 const MatchDebugger: React.FC = () => {
@@ -57,6 +57,50 @@ const MatchDebugger: React.FC = () => {
     } catch (error) {
       console.error('Error rebuilding matches:', error);
       alert('Error rebuilding matches');
+    } finally {
+      setFixing(false);
+    }
+  };
+
+  const handleCheckMatch = async (matchId: string) => {
+    if (!userId.trim() || !matchId.trim()) return;
+    
+    setLoading(true);
+    try {
+      const result = await checkUserInMatch(userId, matchId);
+      if (result.success) {
+        if (result.userInMatch) {
+          alert(`User ${userId} is properly included in match ${matchId}`);
+        } else {
+          alert(`User ${userId} is NOT in match ${matchId} users array. This is likely the cause of permission errors.`);
+        }
+      } else {
+        alert(`Error checking match: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error checking match:', error);
+      alert('Error checking match. Check console for details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFixMatch = async (matchId: string) => {
+    if (!userId.trim() || !matchId.trim()) return;
+    
+    setFixing(true);
+    try {
+      const result = await fixUserInMatch(userId, matchId);
+      if (result.success) {
+        alert(`Fixed user ${userId} in match ${matchId}`);
+        // Re-debug to show updated results
+        await handleDebug();
+      } else {
+        alert(`Error fixing match: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error fixing match:', error);
+      alert('Error fixing match. Check console for details.');
     } finally {
       setFixing(false);
     }
@@ -154,6 +198,25 @@ const MatchDebugger: React.FC = () => {
                 <h3 className="text-lg font-medium mb-2">Match Details</h3>
                 <div className="space-y-2 text-sm">
                   <div><strong>Match IDs:</strong> {debugResult.matchIds.join(', ')}</div>
+                  {debugResult.matchIds.map(matchId => (
+                    <div key={matchId} className="flex items-center gap-2">
+                      <span><strong>Match {matchId}:</strong></span>
+                      <button
+                        onClick={() => handleCheckMatch(matchId)}
+                        disabled={loading}
+                        className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 disabled:bg-gray-300"
+                      >
+                        Check
+                      </button>
+                      <button
+                        onClick={() => handleFixMatch(matchId)}
+                        disabled={fixing}
+                        className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 disabled:bg-gray-300"
+                      >
+                        Fix
+                      </button>
+                    </div>
+                  ))}
                   {debugResult.validMatches.length > 0 && (
                     <div><strong>Valid Matches:</strong> {debugResult.validMatches.join(', ')}</div>
                   )}
