@@ -34,6 +34,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
           console.log('Production mode: Checking Firestore for user document...');
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           console.log('Firestore check result:', userDoc.exists());
+          if (userDoc.exists()) {
+            console.log('User document data:', userDoc.data());
+          }
           setProfileExists(userDoc.exists());
         }
       } catch (error) {
@@ -64,7 +67,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
 
   if (requireProfile && profileExists === false) {
     console.log('ProtectedRoute: Profile does not exist, redirecting to onboarding');
+    console.log('ProtectedRoute: profileExists =', profileExists, 'requireProfile =', requireProfile);
     return <Navigate to="/onboarding" replace />;
+  }
+
+  if (requireProfile && profileExists === true) {
+    console.log('ProtectedRoute: Profile exists, allowing access to protected route');
   }
 
   return <>{children}</>;

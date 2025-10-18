@@ -173,7 +173,14 @@ const ProfileSetup: React.FC = () => {
           title: "Success",
           description: "Profile created successfully! Photos uploaded to cloud storage.",
         });
+        
+        // Add a small delay to ensure Firestore has time to index the document
+        console.log('Waiting for Firestore indexing...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        console.log('About to navigate to /discover...');
         navigate('/discover');
+        console.log('Navigation command executed');
       }
     } catch (error: any) {
       console.error('Error saving profile:', error);
