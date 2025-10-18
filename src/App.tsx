@@ -16,6 +16,7 @@ import DiscoverQueue from './pages/Discover/DiscoverQueue';
 import MatchesList from './pages/Matches/MatchesList';
 import ChatRoom from './pages/Chat/ChatRoom';
 import ProfileSettings from './pages/Profile/ProfileSettings';
+import MatchDebugger from './pages/Debug/MatchDebugger';
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,15 @@ function App() {
                   <AppLayout>
                     <ProfileSettings />
                   </AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/debug/matches" 
+              element={
+                <ProtectedRoute>
+                  <MatchDebugger />
                 </ProtectedRoute>
               } 
             />
