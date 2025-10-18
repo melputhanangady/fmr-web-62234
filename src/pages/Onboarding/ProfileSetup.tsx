@@ -161,8 +161,8 @@ const ProfileSetup: React.FC = () => {
         await setDoc(doc(db, 'users', currentUser.uid), profileData);
         console.log('User document created successfully');
         
-        // Add a small delay to ensure the document is fully written
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Add a longer delay to ensure the document is fully written and indexed
+        await new Promise(resolve => setTimeout(resolve, 2000));
         console.log('Navigating to discover page...');
         
         toast({
