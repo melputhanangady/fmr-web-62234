@@ -267,3 +267,172 @@ export async function fixUserInMatch(userId: string, matchId: string): Promise<{
     };
   }
 }
+
+/**
+ * Debug mutual matching between two specific users
+ */
+export async function debugMutualMatching(userId1: string, userId2: string): Promise<{
+  success: boolean;
+  error?: string;
+  user1Data?: any;
+  user2Data?: any;
+  mutualLike?: boolean;
+  matchExists?: boolean;
+  matchId?: string;
+  issues?: string[];
+  recommendations?: string[];
+}> {
+  try {
+    const db = getFirestore();
+    const issues: string[] = [];
+    const recommendations: string[] = [];
+    
+    // Get both user documents
+    const user1Ref = doc(db, 'users', userId1);
+    const user2Ref = doc(db, 'users', userId2);
+    
+    const [user1Doc, user2Doc] = await Promise.all([
+      getDoc(user1Ref),
+      getDoc(user2Ref)
+    ]);
+    
+    if (!user1Doc.exists()) {
+      issues.push(`User ${userId1} document does not exist`);
+      return { success: false, error: `User ${userId1} not found`, issues, recommendations };
+    }
+    
+    if (!user2Doc.exists()) {
+      issues.push(`User ${userId2} document does not exist`);
+      return { success: false, error: `User ${userId2} not found`, issues, recommendations };
+    }
+    
+    const user1Data = user1Doc.data();
+    const user2Data = user2Doc.data();
+    
+    // Check if they liked each other
+    const user1LikedUser2 = user1Data.likedUsers?.includes(userId2) || false;
+    const user2LikedUser1 = user2Data.likedUsers?.includes(userId1) || false;
+    const mutualLike = user1LikedUser2 && user2LikedUser1;
+    
+    if (!user1LikedUser2) {
+      issues.push(`User ${userId1} has not liked ${userId2}`);
+    }
+    
+    if (!user2LikedUser1) {
+      issues.push(`User ${userId2} has not liked ${userId1}`);
+    }
+    
+    if (!mutualLike) {
+      recommendations.push('Both users need to like each other for a match to be created');
+      return {
+        success: true,
+        user1Data,
+        user2Data,
+        mutualLike: false,
+        issues,
+        recommendations
+      };
+    }
+    
+    // Check if match exists
+    const user1Matches = user1Data.matches || [];
+    const user2Matches = user2Data.matches || [];
+    
+    // Find common match ID
+    const commonMatchId = user1Matches.find((matchId: string) => user2Matches.includes(matchId));
+    
+    if (!commonMatchId) {
+      issues.push('No common match ID found between users');
+      recommendations.push('Match document may not have been created or added to both users');
+      
+      // Check if there are any matches that should contain both users
+      for (const matchId of user1Matches) {
+        try {
+          const matchRef = doc(db, 'matches', matchId);
+          const matchDoc = await getDoc(matchRef);
+          
+          if (matchDoc.exists()) {
+            const matchData = matchDoc.data();
+            if (matchData.users?.includes(userId2)) {
+              issues.push(`Match ${matchId} contains both users but is not in user2's matches array`);
+              recommendations.push(`Add match ${matchId} to user ${userId2}'s matches array`);
+            }
+          }
+        } catch (error) {
+          issues.push(`Error checking match ${matchId}: ${error}`);
+        }
+      }
+      
+      for (const matchId of user2Matches) {
+        try {
+          const matchRef = doc(db, 'matches', matchId);
+          const matchDoc = await getDoc(matchRef);
+          
+          if (matchDoc.exists()) {
+            const matchData = matchDoc.data();
+            if (matchData.users?.includes(userId1)) {
+              issues.push(`Match ${matchId} contains both users but is not in user1's matches array`);
+              recommendations.push(`Add match ${matchId} to user ${userId1}'s matches array`);
+            }
+          }
+        } catch (error) {
+          issues.push(`Error checking match ${matchId}: ${error}`);
+        }
+      }
+      
+      return {
+        success: true,
+        user1Data,
+        user2Data,
+        mutualLike: true,
+        matchExists: false,
+        issues,
+        recommendations
+      };
+    }
+    
+    // Verify the match document exists and contains both users
+    const matchRef = doc(db, 'matches', commonMatchId);
+    const matchDoc = await getDoc(matchRef);
+    
+    if (!matchDoc.exists()) {
+      issues.push(`Match document ${commonMatchId} does not exist`);
+      recommendations.push('Remove invalid match ID from both users and recreate match');
+      return {
+        success: true,
+        user1Data,
+        user2Data,
+        mutualLike: true,
+        matchExists: false,
+        matchId: commonMatchId,
+        issues,
+        recommendations
+      };
+    }
+    
+    const matchData = matchDoc.data();
+    const bothUsersInMatch = matchData.users?.includes(userId1) && matchData.users?.includes(userId2);
+    
+    if (!bothUsersInMatch) {
+      issues.push(`Match document ${commonMatchId} does not contain both users`);
+      recommendations.push('Update match document to include both users');
+    }
+    
+    return {
+      success: true,
+      user1Data,
+      user2Data,
+      mutualLike: true,
+      matchExists: true,
+      matchId: commonMatchId,
+      issues,
+      recommendations
+    };
+    
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}

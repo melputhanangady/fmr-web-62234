@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch } from '../../utils/matchDebugger';
+import { debugUserMatches, fixUserMatches, rebuildUserMatches, checkUserInMatch, fixUserInMatch, debugMutualMatching } from '../../utils/matchDebugger';
 import type { MatchDebugResult } from '../../utils/matchDebugger';
 
 const MatchDebugger: React.FC = () => {
@@ -8,6 +8,8 @@ const MatchDebugger: React.FC = () => {
   const [debugResult, setDebugResult] = useState<MatchDebugResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [fixing, setFixing] = useState(false);
+  const [mutualDebugResult, setMutualDebugResult] = useState<any>(null);
+  const [userId2, setUserId2] = useState('');
   const { currentUser } = useAuth();
 
   const handleDebug = async () => {
@@ -106,6 +108,21 @@ const MatchDebugger: React.FC = () => {
     }
   };
 
+  const handleMutualDebug = async () => {
+    if (!userId.trim() || !userId2.trim()) return;
+    
+    setLoading(true);
+    try {
+      const result = await debugMutualMatching(userId, userId2);
+      setMutualDebugResult(result);
+    } catch (error) {
+      console.error('Error debugging mutual matching:', error);
+      alert('Error debugging mutual matching. Check console for details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -161,6 +178,89 @@ const MatchDebugger: React.FC = () => {
             </button>
           </div>
         </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Debug Mutual Matching</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                User 1 ID
+              </label>
+              <input
+                type="text"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                placeholder="Enter first user ID"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                User 2 ID
+              </label>
+              <input
+                type="text"
+                value={userId2}
+                onChange={(e) => setUserId2(e.target.value)}
+                placeholder="Enter second user ID"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          
+          <button
+            onClick={handleMutualDebug}
+            disabled={loading || !userId.trim() || !userId2.trim()}
+            className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-gray-300"
+          >
+            {loading ? 'Analyzing...' : 'Debug Mutual Matching'}
+          </button>
+        </div>
+
+        {mutualDebugResult && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Mutual Matching Analysis</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Basic Info</h3>
+                <div className="space-y-2 text-sm">
+                  <div><strong>Mutual Like:</strong> {mutualDebugResult.mutualLike ? '✅ Yes' : '❌ No'}</div>
+                  <div><strong>Match Exists:</strong> {mutualDebugResult.matchExists ? '✅ Yes' : '❌ No'}</div>
+                  {mutualDebugResult.matchId && (
+                    <div><strong>Match ID:</strong> {mutualDebugResult.matchId}</div>
+                  )}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-2">Issues Found</h3>
+                {mutualDebugResult.issues?.length === 0 ? (
+                  <div className="text-green-600">✅ No issues found</div>
+                ) : (
+                  <ul className="space-y-1 text-sm text-red-600">
+                    {mutualDebugResult.issues?.map((issue: string, index: number) => (
+                      <li key={index}>• {issue}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+            
+            {mutualDebugResult.recommendations?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-2">Recommendations</h3>
+                <ul className="space-y-1 text-sm text-blue-600">
+                  {mutualDebugResult.recommendations.map((rec: string, index: number) => (
+                    <li key={index}>• {rec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         {debugResult && (
           <div className="bg-white rounded-lg shadow-lg p-6">
