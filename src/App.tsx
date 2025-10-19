@@ -18,6 +18,7 @@ import ChatRoom from './pages/Chat/ChatRoom';
 import ProfileSettings from './pages/Profile/ProfileSettings';
 import LikesList from './pages/Likes/LikesList';
 import MatchDebugger from './pages/Debug/MatchDebugger';
+import ChatDebugger from './pages/Debug/ChatDebugger';
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MatchDebugger />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/debug/chat" 
+              element={
+                <ProtectedRoute>
+                  <ChatDebugger />
                 </ProtectedRoute>
               } 
             />
