@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayRemove } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { removeLike } from '../../services/notificationService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,8 @@ const UserProfile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isRemovingLike, setIsRemovingLike] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -42,6 +45,18 @@ const UserProfile: React.FC = () => {
 
         const userData = userDoc.data() as User;
         setUser(userData);
+
+        // Check if current user has already liked this user
+        if (currentUser?.uid) {
+          const currentUserRef = doc(db, 'users', currentUser.uid);
+          const currentUserDoc = await getDoc(currentUserRef);
+          
+          if (currentUserDoc.exists()) {
+            const currentUserData = currentUserDoc.data();
+            const likedUsers = currentUserData.likedUsers || [];
+            setIsLiked(likedUsers.includes(userId));
+          }
+        }
       } catch (error) {
         console.error('Error loading user profile:', error);
         setError('Failed to load user profile');
@@ -62,9 +77,27 @@ const UserProfile: React.FC = () => {
     console.log('Like user:', userId);
   };
 
-  const handlePass = () => {
-    // TODO: Implement pass functionality
-    console.log('Pass user:', userId);
+  const handleNotInterested = async () => {
+    if (!currentUser?.uid || !userId || isRemovingLike) return;
+    
+    try {
+      setIsRemovingLike(true);
+      
+      // Remove the like using the notification service
+      const success = await removeLike(currentUser.uid, userId);
+      
+      if (success) {
+        setIsLiked(false);
+        // Navigate back to likes page since the like was removed
+        navigate('/likes');
+      } else {
+        console.error('Failed to remove like');
+      }
+    } catch (error) {
+      console.error('Error removing like:', error);
+    } finally {
+      setIsRemovingLike(false);
+    }
   };
 
   const nextPhoto = () => {
@@ -230,23 +263,49 @@ const UserProfile: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <Button
-                onClick={handlePass}
-                variant="outline"
-                size="lg"
-                className="flex-1"
-              >
-                <X className="w-5 h-5 mr-2" />
-                Pass
-              </Button>
-              <Button
-                onClick={handleLike}
-                size="lg"
-                className="flex-1 bg-primary hover:bg-primary/90"
-              >
-                <Heart className="w-5 h-5 mr-2" />
-                Like
-              </Button>
+              {isLiked ? (
+                <>
+                  <Button
+                    onClick={handleNotInterested}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                    disabled={isRemovingLike}
+                  >
+                    <X className="w-5 h-5 mr-2" />
+                    {isRemovingLike ? 'Removing...' : 'Not Interested'}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="flex-1"
+                    disabled
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    Liked
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={handleNotInterested}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <X className="w-5 h-5 mr-2" />
+                    Pass
+                  </Button>
+                  <Button
+                    onClick={handleLike}
+                    size="lg"
+                    className="flex-1 bg-primary hover:bg-primary/90"
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    Like
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
