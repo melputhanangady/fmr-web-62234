@@ -16,6 +16,51 @@ const INTERESTS = [
   'Fashion', 'Adventure', 'Yoga', 'Coffee', 'Wine', 'Pets'
 ];
 
+const HOBBIES = [
+  'Photography', 'Hiking', 'Cooking', 'Travel', 'Reading', 'Yoga', 'Dancing',
+  'Painting', 'Gardening', 'Swimming', 'Cycling', 'Running', 'Meditation',
+  'Writing', 'Learning Languages', 'Volunteering', 'Board Games', 'Chess'
+];
+
+const EDUCATION_LEVELS = [
+  'High School', 'Some College', 'Associate Degree', 'Bachelor\'s Degree',
+  'Master\'s Degree', 'Doctorate', 'Professional Degree'
+];
+
+const OCCUPATIONS = [
+  'Software Engineer', 'Teacher', 'Doctor', 'Nurse', 'Lawyer', 'Accountant',
+  'Marketing Manager', 'Sales Representative', 'Designer', 'Artist', 'Writer',
+  'Consultant', 'Entrepreneur', 'Student', 'Retired', 'Other'
+];
+
+const HEIGHTS = [
+  '4\'0"', '4\'1"', '4\'2"', '4\'3"', '4\'4"', '4\'5"', '4\'6"', '4\'7"',
+  '4\'8"', '4\'9"', '4\'10"', '4\'11"', '5\'0"', '5\'1"', '5\'2"', '5\'3"',
+  '5\'4"', '5\'5"', '5\'6"', '5\'7"', '5\'8"', '5\'9"', '5\'10"', '5\'11"',
+  '6\'0"', '6\'1"', '6\'2"', '6\'3"', '6\'4"', '6\'5"', '6\'6"', '6\'7"', '6\'8"'
+];
+
+const RELATIONSHIP_STATUS = [
+  'Single', 'Divorced', 'Widowed', 'Separated'
+];
+
+const LOOKING_FOR = [
+  'Long-term relationship', 'Short-term relationship', 'Marriage', 'Friendship',
+  'Casual dating', 'Not sure yet'
+];
+
+const LIFESTYLE_OPTIONS = [
+  'Non-smoker', 'Occasionally drinks', 'Regularly drinks', 'Never drinks',
+  'Vegetarian', 'Vegan', 'Pescatarian', 'Omnivore', 'Keto', 'Gluten-free',
+  'Early bird', 'Night owl', 'Gym enthusiast', 'Outdoor lover', 'Homebody'
+];
+
+const PERSONALITY_TRAITS = [
+  'Adventurous', 'Creative', 'Optimistic', 'Independent', 'Caring', 'Funny',
+  'Intellectual', 'Spontaneous', 'Organized', 'Relaxed', 'Ambitious', 'Loyal',
+  'Honest', 'Confident', 'Humble', 'Passionate', 'Calm', 'Energetic'
+];
+
 const CITIES = [
   'New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia',
   'San Antonio', 'San Diego', 'Dallas', 'San Jose', 'Austin', 'Jacksonville',
@@ -39,6 +84,17 @@ const ProfileSetup: React.FC = () => {
     city: '',
     interests: [] as string[],
     photos: [] as string[],
+    // Additional profile fields
+    hobbies: [] as string[],
+    education: '',
+    occupation: '',
+    height: '',
+    relationshipStatus: 'Single',
+    lookingFor: 'Long-term relationship',
+    lifestyle: [] as string[],
+    personality: [] as string[],
+    dealBreakers: [] as string[],
+    funFacts: [] as string[],
     preferences: {
       minAge: 18,
       maxAge: 35,
@@ -72,6 +128,33 @@ const ProfileSetup: React.FC = () => {
           ? prev.preferences.cities.filter(c => c !== city)
           : [...prev.preferences.cities, city]
       }
+    }));
+  };
+
+  const handleHobbyToggle = (hobby: string) => {
+    setFormData(prev => ({
+      ...prev,
+      hobbies: prev.hobbies.includes(hobby)
+        ? prev.hobbies.filter(h => h !== hobby)
+        : [...prev.hobbies, hobby]
+    }));
+  };
+
+  const handleLifestyleToggle = (option: string) => {
+    setFormData(prev => ({
+      ...prev,
+      lifestyle: prev.lifestyle.includes(option)
+        ? prev.lifestyle.filter(l => l !== option)
+        : [...prev.lifestyle, option]
+    }));
+  };
+
+  const handlePersonalityToggle = (trait: string) => {
+    setFormData(prev => ({
+      ...prev,
+      personality: prev.personality.includes(trait)
+        ? prev.personality.filter(p => p !== trait)
+        : [...prev.personality, trait]
     }));
   };
 
@@ -148,6 +231,17 @@ const ProfileSetup: React.FC = () => {
           city: userData.city,
           interests: userData.interests,
           photos: userData.photos, // Photos are now Firebase Storage URLs
+          // Additional profile fields
+          hobbies: userData.hobbies,
+          education: userData.education,
+          occupation: userData.occupation,
+          height: userData.height,
+          relationshipStatus: userData.relationshipStatus,
+          lookingFor: userData.lookingFor,
+          lifestyle: userData.lifestyle,
+          personality: userData.personality,
+          dealBreakers: userData.dealBreakers,
+          funFacts: userData.funFacts,
           preferences: userData.preferences,
           createdAt: userData.createdAt,
           likedUsers: userData.likedUsers,
@@ -399,6 +493,200 @@ const ProfileSetup: React.FC = () => {
           </div>
         );
 
+      case 5:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Tell us more about yourself</h2>
+            <p className="text-gray-600">Help others get to know you better</p>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Education Level
+              </label>
+              <select
+                value={formData.education}
+                onChange={(e) => handleInputChange('education', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="">Select your education level</option>
+                {EDUCATION_LEVELS.map(level => (
+                  <option key={level} value={level}>{level}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Occupation
+              </label>
+              <select
+                value={formData.occupation}
+                onChange={(e) => handleInputChange('occupation', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="">Select your occupation</option>
+                {OCCUPATIONS.map(occupation => (
+                  <option key={occupation} value={occupation}>{occupation}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Height
+              </label>
+              <select
+                value={formData.height}
+                onChange={(e) => handleInputChange('height', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="">Select your height</option>
+                {HEIGHTS.map(height => (
+                  <option key={height} value={height}>{height}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Relationship Status
+              </label>
+              <select
+                value={formData.relationshipStatus}
+                onChange={(e) => handleInputChange('relationshipStatus', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                {RELATIONSHIP_STATUS.map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                What are you looking for?
+              </label>
+              <select
+                value={formData.lookingFor}
+                onChange={(e) => handleInputChange('lookingFor', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                {LOOKING_FOR.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        );
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Your hobbies & interests</h2>
+            <p className="text-gray-600">What do you enjoy doing in your free time?</p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {HOBBIES.map(hobby => (
+                <button
+                  key={hobby}
+                  onClick={() => handleHobbyToggle(hobby)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    formData.hobbies.includes(hobby)
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {hobby}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 7:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Your lifestyle & personality</h2>
+            <p className="text-gray-600">Help others understand your lifestyle and personality</p>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Lifestyle (select all that apply)
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {LIFESTYLE_OPTIONS.map(option => (
+                  <button
+                    key={option}
+                    onClick={() => handleLifestyleToggle(option)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      formData.lifestyle.includes(option)
+                        ? 'bg-secondary-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Personality Traits (select all that apply)
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {PERSONALITY_TRAITS.map(trait => (
+                  <button
+                    key={trait}
+                    onClick={() => handlePersonalityToggle(trait)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      formData.personality.includes(trait)
+                        ? 'bg-accent-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {trait}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Final touches</h2>
+            <p className="text-gray-600">Add some fun facts and deal breakers</p>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fun Facts (one per line)
+              </label>
+              <textarea
+                value={formData.funFacts.join('\n')}
+                onChange={(e) => handleInputChange('funFacts', e.target.value.split('\n').filter(fact => fact.trim()))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-24 resize-none"
+                placeholder="I've visited 15 countries&#10;I can speak 3 languages&#10;I love trying new cuisines"
+              />
+              <p className="text-sm text-gray-500 mt-1">Enter one fun fact per line</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Deal Breakers (one per line)
+              </label>
+              <textarea
+                value={formData.dealBreakers.join('\n')}
+                onChange={(e) => handleInputChange('dealBreakers', e.target.value.split('\n').filter(breaker => breaker.trim()))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-24 resize-none"
+                placeholder="Smoking&#10;Not interested in travel&#10;Doesn't like pets"
+              />
+              <p className="text-sm text-gray-500 mt-1">Enter one deal breaker per line</p>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -410,13 +698,13 @@ const ProfileSetup: React.FC = () => {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>Step {step} of 4</span>
-            <span>{Math.round((step / 4) * 100)}%</span>
+            <span>Step {step} of 8</span>
+            <span>{Math.round((step / 8) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
               className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(step / 4) * 100}%` }}
+              style={{ width: `${(step / 8) * 100}%` }}
             />
           </div>
         </div>
@@ -432,7 +720,7 @@ const ProfileSetup: React.FC = () => {
             Previous
           </button>
           
-          {step < 4 ? (
+          {step < 8 ? (
             <button
               onClick={() => setStep(step + 1)}
               className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"

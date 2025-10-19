@@ -6,6 +6,17 @@ export interface User {
   city: string;
   interests: string[];
   photos: string[];
+  // Additional profile fields
+  hobbies?: string[];
+  education?: string;
+  occupation?: string;
+  height?: string;
+  relationshipStatus?: string;
+  lookingFor?: string;
+  lifestyle?: string[];
+  personality?: string[];
+  dealBreakers?: string[];
+  funFacts?: string[];
   preferences: {
     minAge: number;
     maxAge: number;
