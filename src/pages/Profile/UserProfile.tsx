@@ -245,6 +245,63 @@ const UserProfile: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* Basic Details */}
+            {(user.education || user.occupation || user.height || user.relationshipStatus || user.lookingFor) && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {user.education && (
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-600">Education:</span>
+                        <span className="text-gray-900">{user.education}</span>
+                      </div>
+                    )}
+                    {user.occupation && (
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-600">Occupation:</span>
+                        <span className="text-gray-900">{user.occupation}</span>
+                      </div>
+                    )}
+                    {user.height && (
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-600">Height:</span>
+                        <span className="text-gray-900">{user.height}</span>
+                      </div>
+                    )}
+                    {user.relationshipStatus && (
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-600">Status:</span>
+                        <span className="text-gray-900">{user.relationshipStatus}</span>
+                      </div>
+                    )}
+                    {user.lookingFor && (
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-600">Looking for:</span>
+                        <span className="text-gray-900">{user.lookingFor}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Hobbies */}
+            {user.hobbies && user.hobbies.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Hobbies & Interests</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {user.hobbies.map((hobby, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm">
+                        {hobby}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Interests */}
             {user.interests && user.interests.length > 0 && (
               <Card>
@@ -255,6 +312,77 @@ const UserProfile: React.FC = () => {
                       <Badge key={index} variant="outline" className="text-sm">
                         {interest}
                       </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Lifestyle */}
+            {user.lifestyle && user.lifestyle.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Lifestyle</h3>
+                  <div className="space-y-2">
+                    {user.lifestyle.map((item, index) => (
+                      <div key={index} className="flex items-center text-gray-700">
+                        <svg className="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Personality */}
+            {user.personality && user.personality.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Personality</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {user.personality.map((trait, index) => (
+                      <Badge key={index} variant="default" className="text-sm bg-blue-100 text-blue-800">
+                        {trait}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Fun Facts */}
+            {user.funFacts && user.funFacts.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Fun Facts</h3>
+                  <div className="space-y-2">
+                    {user.funFacts.map((fact, index) => (
+                      <div key={index} className="flex items-start text-gray-700">
+                        <span className="text-primary-500 mr-2">•</span>
+                        <span>{fact}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Deal Breakers */}
+            {user.dealBreakers && user.dealBreakers.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Deal Breakers</h3>
+                  <div className="space-y-2">
+                    {user.dealBreakers.map((breaker, index) => (
+                      <div key={index} className="flex items-center text-gray-700">
+                        <svg className="w-4 h-4 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                        {breaker}
+                      </div>
                     ))}
                   </div>
                 </CardContent>
