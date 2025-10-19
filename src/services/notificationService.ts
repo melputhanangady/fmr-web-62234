@@ -9,7 +9,8 @@ import {
   orderBy,
   limit,
   updateDoc,
-  arrayUnion
+  arrayUnion,
+  arrayRemove
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { isDemoMode } from '../utils/demoMode';
@@ -338,6 +339,27 @@ export const markAllNotificationsAsSeen = async (userId: string): Promise<boolea
     return true;
   } catch (error) {
     console.error('Error marking all notifications as seen:', error);
+    return false;
+  }
+};
+
+/**
+ * Remove a like (unlike a user)
+ */
+export const removeLike = async (currentUserId: string, likedUserId: string): Promise<boolean> => {
+  try {
+    if (isDemoMode()) {
+      return true;
+    }
+
+    const userRef = doc(db, 'users', currentUserId);
+    await updateDoc(userRef, {
+      likedUsers: arrayRemove(likedUserId)
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error removing like:', error);
     return false;
   }
 };

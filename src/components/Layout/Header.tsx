@@ -104,6 +104,10 @@ const Header: React.FC = () => {
     navigate('/matches');
   };
 
+  const handleLikesClick = () => {
+    navigate('/likes');
+  };
+
   return (
     <header className="bg-background border-b border-border px-6 py-4 shadow-sm">
       <div className="flex justify-end items-center space-x-4">
@@ -138,6 +142,9 @@ const Header: React.FC = () => {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleMatchesClick}>
               💕 My Matches
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLikesClick}>
+              ❤️ My Likes
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">
