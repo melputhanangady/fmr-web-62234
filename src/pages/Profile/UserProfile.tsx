@@ -221,6 +221,53 @@ const UserProfile: React.FC = () => {
             </Card>
           </div>
 
+          {/* Action Buttons */}
+          <div className="flex space-x-4">
+            {isLiked ? (
+              <>
+                <Button
+                  onClick={handleNotInterested}
+                  variant="outline"
+                  size="lg"
+                  className="flex-1"
+                  disabled={isRemovingLike}
+                >
+                  <X className="w-5 h-5 mr-2" />
+                  {isRemovingLike ? 'Removing...' : 'Not Interested'}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="flex-1"
+                  disabled
+                >
+                  <Heart className="w-5 h-5 mr-2" />
+                  Liked
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={handleNotInterested}
+                  variant="outline"
+                  size="lg"
+                  className="flex-1"
+                >
+                  <X className="w-5 h-5 mr-2" />
+                  Pass
+                </Button>
+                <Button
+                  onClick={handleLike}
+                  size="lg"
+                  className="flex-1 bg-primary hover:bg-primary/90"
+                >
+                  <Heart className="w-5 h-5 mr-2" />
+                  Like
+                </Button>
+              </>
+            )}
+          </div>
+
           {/* Profile Info */}
           <div className="space-y-6">
             {/* Basic Info */}
@@ -389,52 +436,6 @@ const UserProfile: React.FC = () => {
               </Card>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              {isLiked ? (
-                <>
-                  <Button
-                    onClick={handleNotInterested}
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                    disabled={isRemovingLike}
-                  >
-                    <X className="w-5 h-5 mr-2" />
-                    {isRemovingLike ? 'Removing...' : 'Not Interested'}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="flex-1"
-                    disabled
-                  >
-                    <Heart className="w-5 h-5 mr-2" />
-                    Liked
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    onClick={handleNotInterested}
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                  >
-                    <X className="w-5 h-5 mr-2" />
-                    Pass
-                  </Button>
-                  <Button
-                    onClick={handleLike}
-                    size="lg"
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                  >
-                    <Heart className="w-5 h-5 mr-2" />
-                    Like
-                  </Button>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </div>
