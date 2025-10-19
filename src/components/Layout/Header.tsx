@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { isDemoMode } from '../../utils/demoMode';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../config/firebase';
+import NotificationIcon from '../NotificationIcon';
 
 const Header: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -105,7 +106,10 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-background border-b border-border px-6 py-4 shadow-sm">
-      <div className="flex justify-end items-center">
+      <div className="flex justify-end items-center space-x-4">
+        {/* Notification Icon */}
+        <NotificationIcon />
+        
         {/* User Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
