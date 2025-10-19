@@ -16,6 +16,7 @@ import DiscoverQueue from './pages/Discover/DiscoverQueue';
 import MatchesList from './pages/Matches/MatchesList';
 import ChatRoom from './pages/Chat/ChatRoom';
 import ProfileSettings from './pages/Profile/ProfileSettings';
+import UserProfile from './pages/Profile/UserProfile';
 import LikesList from './pages/Likes/LikesList';
 import MatchDebugger from './pages/Debug/MatchDebugger';
 import ChatDebugger from './pages/Debug/ChatDebugger';
@@ -82,6 +83,15 @@ function App() {
                   <AppLayout>
                     <ProfileSettings />
                   </AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/profile/:userId" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
                 </ProtectedRoute>
               } 
             />
