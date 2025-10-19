@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { isDemoMode } from '../../utils/demoMode';
@@ -17,45 +17,52 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userName, setUserName] = useState<string>('');
+  const [userPhoto, setUserPhoto] = useState<string>('');
 
   useEffect(() => {
-    const fetchUserName = async (userId: string) => {
-      console.log('Header: fetchUserName called for userId:', userId);
+    const fetchUserData = async (userId: string) => {
+      console.log('Header: fetchUserData called for userId:', userId);
       
       if (!userId) {
-        console.log('Header: No userId, clearing userName');
+        console.log('Header: No userId, clearing user data');
         setUserName('');
+        setUserPhoto('');
         return;
       }
 
       try {
         if (isDemoMode()) {
-          // In demo mode, get name from localStorage
+          // In demo mode, get data from localStorage
           const demoProfile = localStorage.getItem('demo-user-profile');
           if (demoProfile) {
             const userData = JSON.parse(demoProfile);
-            console.log('Header: Demo mode - setting userName to:', userData.name);
+            console.log('Header: Demo mode - setting user data:', userData.name);
             setUserName(userData.name || 'User');
+            setUserPhoto(userData.photos?.[0] || '');
           } else {
             console.log('Header: Demo mode - no demo profile found');
             setUserName('User');
+            setUserPhoto('');
           }
         } else {
-          // In production mode, get name from Firestore
+          // In production mode, get data from Firestore
           console.log('Header: Production mode - fetching from Firestore for user:', userId);
           const userDoc = await getDoc(doc(db, 'users', userId));
           if (userDoc.exists()) {
             const userData = userDoc.data();
             console.log('Header: Firestore user data:', userData);
             setUserName(userData.name || 'User');
+            setUserPhoto(userData.photos?.[0] || '');
           } else {
             console.log('Header: No user document found in Firestore');
             setUserName('User');
+            setUserPhoto('');
           }
         }
       } catch (error) {
-        console.error('Error fetching user name:', error);
+        console.error('Error fetching user data:', error);
         setUserName('User');
+        setUserPhoto('');
       }
     };
 
@@ -63,15 +70,16 @@ const Header: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('Header: Auth state changed, user:', user?.uid);
       if (user) {
-        fetchUserName(user.uid);
+        fetchUserData(user.uid);
       } else {
         setUserName('');
+        setUserPhoto('');
       }
     });
 
     // Also fetch for current user if available
     if (currentUser?.uid) {
-      fetchUserName(currentUser.uid);
+      fetchUserData(currentUser.uid);
     }
 
     return () => unsubscribe();
@@ -81,6 +89,7 @@ const Header: React.FC = () => {
     try {
       await logout();
       setUserName(''); // Clear userName on logout
+      setUserPhoto(''); // Clear userPhoto on logout
       toast({
         title: "Success",
         description: "Logged out successfully",
@@ -119,6 +128,9 @@ const Header: React.FC = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-3">
               <Avatar className="w-8 h-8">
+                {userPhoto ? (
+                  <AvatarImage src={userPhoto} alt={userName || 'User'} />
+                ) : null}
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {userName?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
