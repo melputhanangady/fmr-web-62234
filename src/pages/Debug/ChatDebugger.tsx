@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import { fixChatBetweenUsers } from '../../utils/chatFixer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,8 @@ const ChatDebugger: React.FC = () => {
   const [userId2, setUserId2] = useState('rcMxmDF3N5WRlr0LQARYSKGKc2h2');
   const [debugResult, setDebugResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [fixing, setFixing] = useState(false);
+  const [fixResult, setFixResult] = useState<any>(null);
 
   const debugChat = async () => {
     if (!userId1.trim() || !userId2.trim()) return;
@@ -131,6 +134,29 @@ const ChatDebugger: React.FC = () => {
     }
   };
 
+  const fixChat = async () => {
+    if (!userId1.trim() || !userId2.trim()) return;
+    
+    setFixing(true);
+    try {
+      const result = await fixChatBetweenUsers(userId1, userId2);
+      setFixResult(result);
+      
+      if (result.success) {
+        // Re-run debug to see if the issue is fixed
+        await debugChat();
+      }
+    } catch (error) {
+      console.error('Error fixing chat:', error);
+      setFixResult({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    } finally {
+      setFixing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -165,13 +191,24 @@ const ChatDebugger: React.FC = () => {
               </div>
             </div>
             
-            <Button
-              onClick={debugChat}
-              disabled={loading || !userId1.trim() || !userId2.trim()}
-              className="w-full"
-            >
-              {loading ? 'Debugging...' : 'Debug Chat'}
-            </Button>
+            <div className="flex space-x-4">
+              <Button
+                onClick={debugChat}
+                disabled={loading || !userId1.trim() || !userId2.trim()}
+                className="flex-1"
+              >
+                {loading ? 'Debugging...' : 'Debug Chat'}
+              </Button>
+              
+              <Button
+                onClick={fixChat}
+                disabled={fixing || !userId1.trim() || !userId2.trim()}
+                variant="outline"
+                className="flex-1"
+              >
+                {fixing ? 'Fixing...' : 'Fix Chat'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -304,6 +341,45 @@ const ChatDebugger: React.FC = () => {
                         <span>{rec}</span>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Fix Result */}
+            {fixResult && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Fix Result</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Badge variant={fixResult.success ? "default" : "destructive"}>
+                        {fixResult.success ? "✅" : "❌"}
+                      </Badge>
+                      <span className="font-semibold">
+                        {fixResult.success ? 'Fix Successful' : 'Fix Failed'}
+                      </span>
+                    </div>
+                    
+                    {fixResult.message && (
+                      <div className="text-sm text-gray-600">
+                        {fixResult.message}
+                      </div>
+                    )}
+                    
+                    {fixResult.error && (
+                      <div className="text-sm text-red-600">
+                        Error: {fixResult.error}
+                      </div>
+                    )}
+                    
+                    {fixResult.matchId && (
+                      <div className="text-sm text-gray-600">
+                        Match ID: {fixResult.matchId}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
