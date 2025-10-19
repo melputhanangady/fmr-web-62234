@@ -16,6 +16,7 @@ const ChatDebugger: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fixing, setFixing] = useState(false);
   const [fixResult, setFixResult] = useState<any>(null);
+  const [detailedDebug, setDetailedDebug] = useState<any>(null);
 
   const debugChat = async () => {
     if (!userId1.trim() || !userId2.trim()) return;
@@ -157,6 +158,98 @@ const ChatDebugger: React.FC = () => {
     }
   };
 
+  const debugChatFromUserPerspective = async (fromUserId: string, toUserId: string) => {
+    setLoading(true);
+    try {
+      const result: any = {
+        fromUser: null,
+        toUser: null,
+        matchProcess: [],
+        issues: [],
+        recommendations: []
+      };
+
+      // Get from user data
+      const fromUserRef = doc(db, 'users', fromUserId);
+      const fromUserDoc = await getDoc(fromUserRef);
+      if (fromUserDoc.exists()) {
+        result.fromUser = {
+          id: fromUserId,
+          ...fromUserDoc.data(),
+          exists: true
+        };
+      } else {
+        result.fromUser = { id: fromUserId, exists: false };
+        result.issues.push(`From user ${fromUserId} does not exist`);
+        setDetailedDebug(result);
+        return;
+      }
+
+      // Get to user data
+      const toUserRef = doc(db, 'users', toUserId);
+      const toUserDoc = await getDoc(toUserRef);
+      if (toUserDoc.exists()) {
+        result.toUser = {
+          id: toUserId,
+          ...toUserDoc.data(),
+          exists: true
+        };
+      } else {
+        result.toUser = { id: toUserId, exists: false };
+        result.issues.push(`To user ${toUserId} does not exist`);
+        setDetailedDebug(result);
+        return;
+      }
+
+      // Simulate the ChatRoom match finding process
+      const fromUserMatches = result.fromUser.matches || [];
+      result.matchProcess.push(`From user has ${fromUserMatches.length} matches: ${fromUserMatches.join(', ')}`);
+
+      let foundMatch = false;
+      for (const matchId of fromUserMatches) {
+        result.matchProcess.push(`Checking match ${matchId}...`);
+        
+        const matchRef = doc(db, 'matches', matchId);
+        const matchDoc = await getDoc(matchRef);
+        
+        if (matchDoc.exists()) {
+          const matchData = matchDoc.data();
+          result.matchProcess.push(`Match ${matchId} exists with users: ${matchData.users?.join(', ')}`);
+          
+          if (matchData.users && matchData.users.includes(toUserId)) {
+            result.matchProcess.push(`✅ Found match ${matchId} that includes both users`);
+            foundMatch = true;
+            result.matchId = matchId;
+            result.matchData = matchData;
+            break;
+          } else {
+            result.matchProcess.push(`❌ Match ${matchId} does not include target user ${toUserId}`);
+          }
+        } else {
+          result.matchProcess.push(`❌ Match document ${matchId} does not exist`);
+        }
+      }
+
+      if (!foundMatch) {
+        result.issues.push('No match found that includes both users');
+        result.recommendations.push('Users may not be properly matched');
+      } else {
+        result.recommendations.push('Chat should work - match found successfully');
+      }
+
+      setDetailedDebug(result);
+    } catch (error) {
+      console.error('Error in detailed debug:', error);
+      setDetailedDebug({
+        error: error.message,
+        issues: ['Detailed debugging failed'],
+        recommendations: ['Check console for details']
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -191,23 +284,45 @@ const ChatDebugger: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex space-x-4">
-              <Button
-                onClick={debugChat}
-                disabled={loading || !userId1.trim() || !userId2.trim()}
-                className="flex-1"
-              >
-                {loading ? 'Debugging...' : 'Debug Chat'}
-              </Button>
+            <div className="space-y-4">
+              <div className="flex space-x-4">
+                <Button
+                  onClick={debugChat}
+                  disabled={loading || !userId1.trim() || !userId2.trim()}
+                  className="flex-1"
+                >
+                  {loading ? 'Debugging...' : 'Debug Chat'}
+                </Button>
+                
+                <Button
+                  onClick={fixChat}
+                  disabled={fixing || !userId1.trim() || !userId2.trim()}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  {fixing ? 'Fixing...' : 'Fix Chat'}
+                </Button>
+              </div>
               
-              <Button
-                onClick={fixChat}
-                disabled={fixing || !userId1.trim() || !userId2.trim()}
-                variant="outline"
-                className="flex-1"
-              >
-                {fixing ? 'Fixing...' : 'Fix Chat'}
-              </Button>
+              <div className="flex space-x-4">
+                <Button
+                  onClick={() => debugChatFromUserPerspective(userId1, userId2)}
+                  disabled={loading || !userId1.trim() || !userId2.trim()}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  {loading ? 'Debugging...' : `Debug from ${userId1.slice(0, 8)}...`}
+                </Button>
+                
+                <Button
+                  onClick={() => debugChatFromUserPerspective(userId2, userId1)}
+                  disabled={loading || !userId1.trim() || !userId2.trim()}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  {loading ? 'Debugging...' : `Debug from ${userId2.slice(0, 8)}...`}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -384,6 +499,86 @@ const ChatDebugger: React.FC = () => {
                 </CardContent>
               </Card>
             )}
+          </div>
+        )}
+
+        {/* Detailed Debug Results */}
+        {detailedDebug && (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Detailed Chat Process Debug</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* From User Info */}
+                  {detailedDebug.fromUser && (
+                    <div>
+                      <h4 className="font-semibold">From User: {detailedDebug.fromUser.id}</h4>
+                      <div className="text-sm text-gray-600">
+                        <div>Name: {detailedDebug.fromUser.name}</div>
+                        <div>Matches: {detailedDebug.fromUser.matches?.length || 0}</div>
+                        <div>Match IDs: {detailedDebug.fromUser.matches?.join(', ') || 'None'}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* To User Info */}
+                  {detailedDebug.toUser && (
+                    <div>
+                      <h4 className="font-semibold">To User: {detailedDebug.toUser.id}</h4>
+                      <div className="text-sm text-gray-600">
+                        <div>Name: {detailedDebug.toUser.name}</div>
+                        <div>Matches: {detailedDebug.toUser.matches?.length || 0}</div>
+                        <div>Match IDs: {detailedDebug.toUser.matches?.join(', ') || 'None'}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Match Process */}
+                  {detailedDebug.matchProcess && detailedDebug.matchProcess.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold">Match Finding Process:</h4>
+                      <div className="space-y-1">
+                        {detailedDebug.matchProcess.map((step: string, index: number) => (
+                          <div key={index} className="text-sm bg-gray-100 p-2 rounded">
+                            {step}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Issues */}
+                  {detailedDebug.issues && detailedDebug.issues.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-red-600">Issues Found:</h4>
+                      <div className="space-y-1">
+                        {detailedDebug.issues.map((issue: string, index: number) => (
+                          <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                            ❌ {issue}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recommendations */}
+                  {detailedDebug.recommendations && detailedDebug.recommendations.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-green-600">Recommendations:</h4>
+                      <div className="space-y-1">
+                        {detailedDebug.recommendations.map((rec: string, index: number) => (
+                          <div key={index} className="text-sm text-green-600 bg-green-50 p-2 rounded">
+                            💡 {rec}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
