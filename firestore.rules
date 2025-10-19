@@ -88,6 +88,9 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
         request.auth.uid in resource.data.users;
       
+      // Allow debugging access - read any match for debugging purposes
+      allow read: if isAuthenticated();
+      
       // Users can create matches they're part of
       allow create: if isAuthenticated() && 
         request.auth.uid in request.resource.data.users;
@@ -112,6 +115,9 @@ service cloud.firestore {
       // Users can read messages in matches they're part of
       allow read: if isAuthenticated() && 
         request.auth.uid in get(/databases/$(database)/documents/matches/$(matchId)).data.users;
+      
+      // Allow debugging access - read any messages for debugging purposes
+      allow read: if isAuthenticated();
       
       // Users can create messages in matches they're part of
       allow create: if isAuthenticated() && 
