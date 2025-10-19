@@ -250,33 +250,33 @@ const UserProfile: React.FC = () => {
               <Card>
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
                     {user.education && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="font-medium text-gray-600">Education:</span>
                         <span className="text-gray-900">{user.education}</span>
                       </div>
                     )}
                     {user.occupation && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="font-medium text-gray-600">Occupation:</span>
                         <span className="text-gray-900">{user.occupation}</span>
                       </div>
                     )}
                     {user.height && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="font-medium text-gray-600">Height:</span>
                         <span className="text-gray-900">{user.height}</span>
                       </div>
                     )}
                     {user.relationshipStatus && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="font-medium text-gray-600">Status:</span>
                         <span className="text-gray-900">{user.relationshipStatus}</span>
                       </div>
                     )}
                     {user.lookingFor && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-2">
                         <span className="font-medium text-gray-600">Looking for:</span>
                         <span className="text-gray-900">{user.lookingFor}</span>
                       </div>
