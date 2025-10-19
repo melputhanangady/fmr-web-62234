@@ -8,7 +8,6 @@ import type { User } from '../../types';
 import { isDemoMode } from '../../utils/demoMode';
 import { getDemoUsers } from '../../utils/demoUsers';
 import ProfileCard from '../../components/ProfileCard/ProfileCard';
-import ExpandedProfile from '../../components/ProfileCard/ExpandedProfile';
 import toast from 'react-hot-toast';
 
 const DiscoverQueue: React.FC = () => {
@@ -18,7 +17,6 @@ const DiscoverQueue: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchedUser, setMatchedUser] = useState<User | null>(null);
-  const [showExpandedProfile, setShowExpandedProfile] = useState(false);
 
   // Debug logging for state changes
   console.log('DiscoverQueue render - users:', users.length, 'currentUserIndex:', currentUserIndex, 'loading:', loading);
@@ -297,12 +295,11 @@ const DiscoverQueue: React.FC = () => {
   };
 
   const handleExpandProfile = () => {
-    setShowExpandedProfile(true);
+    if (currentUserProfile && currentUser?.uid) {
+      navigate(`/profile/${currentUserProfile.id}`);
+    }
   };
 
-  const handleCloseExpandedProfile = () => {
-    setShowExpandedProfile(false);
-  };
 
   if (loading) {
     return (
@@ -380,20 +377,8 @@ const DiscoverQueue: React.FC = () => {
             </div>
           )}
 
-          {showExpandedProfile ? (
-            /* Full width layout for expanded profile */
-            <div className="w-full min-h-[600px]">
-              <ExpandedProfile
-                user={currentUserProfile}
-                onClose={handleCloseExpandedProfile}
-                onLike={handleLike}
-                onPass={handlePass}
-                loading={actionLoading}
-              />
-            </div>
-          ) : (
-            /* Normal layout for regular profile cards */
-            <div className="flex gap-6">
+          {/* Normal layout for regular profile cards */}
+          <div className="flex gap-6">
               {/* Main content area */}
               <div className="flex-1 max-w-md mx-auto">
                 <div className="text-center mb-6">
@@ -424,7 +409,6 @@ const DiscoverQueue: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
 
           {/* Match Modal */}
           {showMatchModal && matchedUser && (
