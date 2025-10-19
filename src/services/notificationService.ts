@@ -7,7 +7,9 @@ import {
   where, 
   getDocs,
   orderBy,
-  limit
+  limit,
+  updateDoc,
+  arrayUnion
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { isDemoMode } from '../utils/demoMode';
@@ -16,6 +18,8 @@ export interface NotificationData {
   newMatches: number;
   newLikes: number;
   totalNotifications: number;
+  seenMatches: string[];
+  seenLikes: string[];
 }
 
 export interface NotificationListener {
@@ -51,10 +55,13 @@ export const getNotificationCounts = async (userId: string): Promise<Notificatio
     const userData = userDoc.data();
     const matches = userData.matches || [];
     const likedUsers = userData.likedUsers || [];
+    const seenMatches = userData.seenMatches || [];
+    const seenLikes = userData.seenLikes || [];
     
-    // For now, we'll use a simple approach:
-    // - New matches: count of matches (could be enhanced with timestamps)
-    // - New likes: count of users who liked this user but aren't matched yet
+    // Calculate new matches (matches that haven't been seen)
+    const newMatches = matches.filter((matchId: string) => !seenMatches.includes(matchId));
+    
+    // Calculate new likes (users who liked this user but aren't matched yet and haven't been seen)
     let newLikes = 0;
     
     // Get all users who have liked this user
@@ -62,25 +69,31 @@ export const getNotificationCounts = async (userId: string): Promise<Notificatio
     const likedByQuery = query(usersRef, where('likedUsers', 'array-contains', userId));
     const likedBySnapshot = await getDocs(likedByQuery);
     
-    // Count users who liked this user but aren't in matches yet
+    // Count users who liked this user but aren't in matches yet and haven't been seen
     for (const likedByDoc of likedBySnapshot.docs) {
       const likedByData = likedByDoc.data();
       const likedByMatches = likedByData.matches || [];
+      const likedByUserId = likedByDoc.id;
       
       // Check if there's a match between this user and the one who liked them
       const hasMatch = matches.some((matchId: string) => 
         likedByMatches.includes(matchId)
       );
       
-      if (!hasMatch) {
+      // Check if this like has been seen
+      const hasBeenSeen = seenLikes.includes(likedByUserId);
+      
+      if (!hasMatch && !hasBeenSeen) {
         newLikes++;
       }
     }
 
     return {
-      newMatches: matches.length,
+      newMatches: newMatches.length,
       newLikes,
-      totalNotifications: matches.length + newLikes
+      totalNotifications: newMatches.length + newLikes,
+      seenMatches,
+      seenLikes
     };
     
   } catch (error) {
@@ -215,5 +228,116 @@ export const getRecentActivity = async (userId: string) => {
   } catch (error) {
     console.error('Error getting recent activity:', error);
     return [];
+  }
+};
+
+/**
+ * Mark matches as seen
+ */
+export const markMatchesAsSeen = async (userId: string, matchIds: string[]): Promise<boolean> => {
+  try {
+    if (isDemoMode()) {
+      return true;
+    }
+
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      seenMatches: arrayUnion(...matchIds)
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error marking matches as seen:', error);
+    return false;
+  }
+};
+
+/**
+ * Mark likes as seen
+ */
+export const markLikesAsSeen = async (userId: string, likeUserIds: string[]): Promise<boolean> => {
+  try {
+    if (isDemoMode()) {
+      return true;
+    }
+
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      seenLikes: arrayUnion(...likeUserIds)
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error marking likes as seen:', error);
+    return false;
+  }
+};
+
+/**
+ * Mark all notifications as seen
+ */
+export const markAllNotificationsAsSeen = async (userId: string): Promise<boolean> => {
+  try {
+    if (isDemoMode()) {
+      return true;
+    }
+
+    // Get current user data to get all matches and likes
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      return false;
+    }
+
+    const userData = userDoc.data();
+    const matches = userData.matches || [];
+    const seenMatches = userData.seenMatches || [];
+    const seenLikes = userData.seenLikes || [];
+
+    // Get all users who have liked this user
+    const usersRef = collection(db, 'users');
+    const likedByQuery = query(usersRef, where('likedUsers', 'array-contains', userId));
+    const likedBySnapshot = await getDocs(likedByQuery);
+    
+    const allLikeUserIds: string[] = [];
+    for (const likedByDoc of likedBySnapshot.docs) {
+      const likedByData = likedByDoc.data();
+      const likedByMatches = likedByData.matches || [];
+      const likedByUserId = likedByDoc.id;
+      
+      // Check if there's a match between this user and the one who liked them
+      const hasMatch = matches.some((matchId: string) => 
+        likedByMatches.includes(matchId)
+      );
+      
+      if (!hasMatch) {
+        allLikeUserIds.push(likedByUserId);
+      }
+    }
+
+    // Mark all unseen matches as seen
+    const unseenMatches = matches.filter((matchId: string) => !seenMatches.includes(matchId));
+    
+    // Mark all unseen likes as seen
+    const unseenLikes = allLikeUserIds.filter((likeUserId: string) => !seenLikes.includes(likeUserId));
+
+    // Update the user document
+    const updates: any = {};
+    if (unseenMatches.length > 0) {
+      updates.seenMatches = arrayUnion(...unseenMatches);
+    }
+    if (unseenLikes.length > 0) {
+      updates.seenLikes = arrayUnion(...unseenLikes);
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(userRef, updates);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error marking all notifications as seen:', error);
+    return false;
   }
 };

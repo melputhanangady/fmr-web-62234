@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getNotificationCounts, subscribeToNotifications, type NotificationData } from '../services/notificationService';
+import { getNotificationCounts, subscribeToNotifications, markAllNotificationsAsSeen, type NotificationData } from '../services/notificationService';
 import { Bell, Heart, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,8 +49,18 @@ const NotificationIcon: React.FC = () => {
     };
   }, [currentUser?.uid]);
 
-  const handleNotificationClick = (type: 'matches' | 'likes') => {
+  const handleNotificationClick = async (type: 'matches' | 'likes') => {
     setIsOpen(false);
+    
+    // Mark all notifications as seen when user clicks on any notification
+    if (currentUser?.uid) {
+      try {
+        await markAllNotificationsAsSeen(currentUser.uid);
+      } catch (error) {
+        console.error('Error marking notifications as seen:', error);
+      }
+    }
+    
     if (type === 'matches') {
       navigate('/matches');
     } else {
@@ -143,7 +153,7 @@ const NotificationIcon: React.FC = () => {
             </div>
           )}
 
-          <div className="border-t pt-3">
+          <div className="border-t pt-3 space-y-2">
             <Button 
               variant="outline" 
               size="sm" 
@@ -155,6 +165,26 @@ const NotificationIcon: React.FC = () => {
             >
               View All Matches
             </Button>
+            
+            {notifications.totalNotifications > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full"
+                onClick={async () => {
+                  if (currentUser?.uid) {
+                    try {
+                      await markAllNotificationsAsSeen(currentUser.uid);
+                      setIsOpen(false);
+                    } catch (error) {
+                      console.error('Error marking notifications as seen:', error);
+                    }
+                  }
+                }}
+              >
+                Mark All as Seen
+              </Button>
+            )}
           </div>
         </div>
       </PopoverContent>
