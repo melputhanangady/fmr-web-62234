@@ -161,12 +161,12 @@ const ProfileSetup: React.FC = () => {
   const handleSubmit = async () => {
     if (!currentUser) return;
 
-    // Rate limiting check
-    const rateLimitResult = rateLimiter.isAllowed(currentUser.uid, 'profile_update');
+    // Rate limiting check for profile creation
+    const rateLimitResult = rateLimiter.isAllowed(currentUser.uid, 'profile_create');
     if (!rateLimitResult.allowed) {
       toast({
         title: "Rate Limit Exceeded",
-        description: "Too many profile updates. Please wait before trying again.",
+        description: "Too many profile creation attempts. Please wait before trying again.",
         variant: "destructive",
       });
       return;
