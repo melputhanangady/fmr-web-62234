@@ -83,6 +83,15 @@ const PassedList: React.FC = () => {
       // Use the existing likeUser service
       const result = await likeUser(currentUser.uid, userId);
       
+      if (result.alreadyMatched) {
+        toast({
+          title: "Already Matched!",
+          description: result.error || "You are already matched with this user!",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       if (result.success) {
         // Remove from passed users list
         setPassedUsers(prev => prev.filter(user => user.id !== userId));

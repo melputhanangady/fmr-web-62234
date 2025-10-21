@@ -213,9 +213,19 @@ const DiscoverQueue: React.FC = () => {
         setCurrentUserIndex(prev => prev + 1);
       } else {
         // In production mode, use Firebase
-        const isMatch = await likeUser(currentUser.uid, currentUserProfile.id);
+        const result = await likeUser(currentUser.uid, currentUserProfile.id);
         
-        if (isMatch) {
+        if (result.alreadyMatched) {
+          toast.error(result.error || 'You are already matched with this user!');
+          return;
+        }
+        
+        if (!result.success) {
+          toast.error(result.error || 'Failed to like user');
+          return;
+        }
+        
+        if (result.isMatch) {
           setMatchedUser(currentUserProfile);
           setShowMatchModal(true);
           toast.success("It's a match! 🎉");

@@ -4,6 +4,8 @@ import { doc, getDoc, updateDoc, arrayRemove } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { removeLike } from '../../services/notificationService';
+import { likeUser } from '../../services/matchService';
+import toast from 'react-hot-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -72,9 +74,39 @@ const UserProfile: React.FC = () => {
     navigate(-1); // Go back to previous page
   };
 
-  const handleLike = () => {
-    // TODO: Implement like functionality
-    console.log('Like user:', userId);
+  const handleLike = async () => {
+    if (!currentUser?.uid || !userId || actionLoading) return;
+    
+    try {
+      setActionLoading(true);
+      
+      const result = await likeUser(currentUser.uid, userId);
+      
+      if (result.alreadyMatched) {
+        toast.error(result.error || 'You are already matched with this user!');
+        return;
+      }
+      
+      if (!result.success) {
+        toast.error(result.error || 'Failed to like user');
+        return;
+      }
+      
+      if (result.isMatch) {
+        toast.success("It's a match! 🎉");
+        // Navigate to matches page to see the new match
+        navigate('/matches');
+      } else {
+        toast.success('Like sent! 💕');
+        // Navigate to likes page to see the liked user
+        navigate('/likes');
+      }
+    } catch (error) {
+      console.error('Error liking user:', error);
+      toast.error('Failed to like user');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleNotInterested = async () => {

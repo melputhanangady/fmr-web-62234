@@ -66,7 +66,7 @@ export const getPotentialMatches = async (currentUserId: string, userData: User)
   }
 };
 
-export const likeUser = async (currentUserId: string, likedUserId: string): Promise<boolean> => {
+export const likeUser = async (currentUserId: string, likedUserId: string): Promise<{ success: boolean; isMatch: boolean; error?: string; alreadyMatched?: boolean }> => {
   try {
     console.log('likeUser called:', { currentUserId, likedUserId });
     
@@ -81,8 +81,38 @@ export const likeUser = async (currentUserId: string, likedUserId: string): Prom
       throw new Error('Rate limit exceeded. Please wait before liking again.');
     }
 
-    // Add to current user's liked list
+    // Check if users are already matched
     const currentUserRef = doc(db, 'users', currentUserId);
+    const currentUserDoc = await getDoc(currentUserRef);
+    
+    if (currentUserDoc.exists()) {
+      const currentUserData = currentUserDoc.data() as User;
+      const currentUserMatches = currentUserData.matches || [];
+      
+      // Check if there's already a match between these users
+      const likedUserRef = doc(db, 'users', likedUserId);
+      const likedUserDoc = await getDoc(likedUserRef);
+      
+      if (likedUserDoc.exists()) {
+        const likedUserData = likedUserDoc.data() as User;
+        const likedUserMatches = likedUserData.matches || [];
+        
+        // Check if they share any match IDs
+        const hasSharedMatches = currentUserMatches.some(matchId => likedUserMatches.includes(matchId));
+        
+        if (hasSharedMatches) {
+          console.log('Users are already matched!');
+          return {
+            success: false,
+            isMatch: false,
+            alreadyMatched: true,
+            error: `You are already matched with ${likedUserData.name}!`
+          };
+        }
+      }
+    }
+
+    // Add to current user's liked list
     console.log('Attempting to update user document:', { currentUserId, likedUserId });
     
     try {
@@ -111,7 +141,7 @@ export const likeUser = async (currentUserId: string, likedUserId: string): Prom
         // It's a match! Create match document
         const matchId = await createMatch(currentUserId, likedUserId);
         console.log('Match created with ID:', matchId);
-        return true; // Return true to indicate a match
+        return { success: true, isMatch: true }; // Return success with match indication
       } else {
         console.log('No mutual like yet');
       }
@@ -119,10 +149,10 @@ export const likeUser = async (currentUserId: string, likedUserId: string): Prom
       console.log('Liked user document not found');
     }
 
-    return false; // No match yet
+    return { success: true, isMatch: false }; // Successfully liked but no match yet
   } catch (error) {
     console.error('Error liking user:', error);
-    throw error;
+    return { success: false, isMatch: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };
 

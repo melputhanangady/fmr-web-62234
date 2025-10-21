@@ -143,8 +143,13 @@ export const getMatchesWithUsers = async (userId: string): Promise<ChatUser[]> =
       }
     }
 
+    // Remove duplicates based on user ID
+    const uniqueMatches = matches.filter((match, index, self) => 
+      index === self.findIndex(m => m.id === match.id)
+    );
+
     // Sort by last message time
-    return matches.sort((a, b) => {
+    return uniqueMatches.sort((a, b) => {
       if (!a.lastMessageTime && !b.lastMessageTime) return 0;
       if (!a.lastMessageTime) return 1;
       if (!b.lastMessageTime) return -1;

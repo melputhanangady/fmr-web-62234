@@ -51,6 +51,24 @@ const LikedByList: React.FC = () => {
     try {
       const result = await likeUser(currentUser.uid, userId);
       
+      if (result.alreadyMatched) {
+        toast({
+          title: "Already Matched!",
+          description: result.error || "You are already matched with this user!",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (!result.success) {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to like user",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       if (result.isMatch) {
         toast({
           title: "It's a Match! 🎉",
