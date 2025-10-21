@@ -52,7 +52,16 @@ const MatchDataCollector: React.FC = () => {
       
       setSuccessfulMatches(matches);
       setStoredMatchData(matchData);
-      setStats(matchStats);
+      
+      // Update stats to show both successful matches and stored data
+      const updatedStats = {
+        ...matchStats,
+        totalSuccessfulMatches: matches.length,
+        totalStoredMatches: matchData.length,
+        activeStoredMatches: matchData.filter(record => record.isActive).length
+      };
+      
+      setStats(updatedStats);
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
@@ -161,8 +170,9 @@ const MatchDataCollector: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <Database className="h-8 w-8 text-blue-500" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Matches</p>
-                    <p className="text-2xl font-bold">{stats.totalMatches}</p>
+                    <p className="text-sm font-medium text-gray-600">Successful Matches</p>
+                    <p className="text-2xl font-bold">{stats.totalSuccessfulMatches || 0}</p>
+                    <p className="text-xs text-gray-500">Available for collection</p>
                   </div>
                 </div>
               </CardContent>
@@ -173,8 +183,9 @@ const MatchDataCollector: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <Users className="h-8 w-8 text-green-500" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Active Matches</p>
-                    <p className="text-2xl font-bold">{stats.activeMatches}</p>
+                    <p className="text-sm font-medium text-gray-600">Stored Data</p>
+                    <p className="text-2xl font-bold">{stats.totalStoredMatches || 0}</p>
+                    <p className="text-xs text-gray-500">Collected for ML</p>
                   </div>
                 </div>
               </CardContent>
@@ -187,6 +198,7 @@ const MatchDataCollector: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Avg Satisfaction</p>
                     <p className="text-2xl font-bold">{stats.averageSatisfaction.toFixed(1)}</p>
+                    <p className="text-xs text-gray-500">From stored data</p>
                   </div>
                 </div>
               </CardContent>
@@ -200,6 +212,7 @@ const MatchDataCollector: React.FC = () => {
                     <Button onClick={exportMatchData} variant="outline" size="sm">
                       Export Data
                     </Button>
+                    <p className="text-xs text-gray-500 mt-1">Download JSON</p>
                   </div>
                 </div>
               </CardContent>

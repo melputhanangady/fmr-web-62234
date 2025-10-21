@@ -62,50 +62,76 @@ export interface MatchDataCollection {
 export const getSuccessfulMatches = async (): Promise<any[]> => {
   try {
     if (isDemoMode()) {
+      console.log('Demo mode: No matches available');
       return [];
     }
 
+    console.log('Fetching successful matches...');
+    
     // Get all users
     const usersRef = collection(db, 'users');
     const usersSnapshot = await getDocs(usersRef);
     
+    console.log(`Found ${usersSnapshot.size} users in database`);
+    
     const successfulMatches: any[] = [];
     const processedPairs = new Set<string>();
+    
+    // Create a map of users for easier lookup
+    const usersMap = new Map();
+    usersSnapshot.forEach((doc) => {
+      usersMap.set(doc.id, { id: doc.id, ...doc.data() });
+    });
     
     usersSnapshot.forEach((doc) => {
       const userData = doc.data();
       const userId = doc.id;
       const userMatches = userData.matches || [];
       
-      // For each match, find the other user and create match data
+      console.log(`User ${userId} (${userData.name}): has ${userMatches.length} matches:`, userMatches);
+      
+      // For each match ID, find users who share the same match ID
       userMatches.forEach((matchId: string) => {
-        // Create a unique pair identifier to avoid duplicates
-        const pairKey = [userId, matchId].sort().join('-');
+        console.log(`Processing match ID: ${matchId}`);
         
-        if (!processedPairs.has(pairKey)) {
-          processedPairs.add(pairKey);
+        // Find all users who have this match ID
+        const usersWithThisMatch = Array.from(usersMap.values()).filter(user => 
+          user.matches && user.matches.includes(matchId)
+        );
+        
+        console.log(`Users with match ${matchId}:`, usersWithThisMatch.map(u => u.name));
+        
+        // If we have exactly 2 users with this match ID, they are matched
+        if (usersWithThisMatch.length === 2) {
+          const [user1, user2] = usersWithThisMatch;
           
-          // Find the other user in the match
-          usersSnapshot.forEach((otherDoc) => {
-            if (otherDoc.id === matchId) {
-              const otherUserData = otherDoc.data();
-              const otherUserMatches = otherUserData.matches || [];
-              
-              // Verify this is a mutual match
-              if (otherUserMatches.includes(userId)) {
-                successfulMatches.push({
-                  user1Id: userId,
-                  user1Data: userData,
-                  user2Id: matchId,
-                  user2Data: otherUserData,
-                  matchId: matchId
-                });
-              }
-            }
-          });
+          // Create a unique pair identifier to avoid duplicates
+          const pairKey = [user1.id, user2.id].sort().join('-');
+          
+          if (!processedPairs.has(pairKey)) {
+            processedPairs.add(pairKey);
+            
+            console.log(`✅ Mutual match found: ${user1.name} & ${user2.name} (Match ID: ${matchId})`);
+            successfulMatches.push({
+              user1Id: user1.id,
+              user1Data: user1,
+              user2Id: user2.id,
+              user2Data: user2,
+              matchId: matchId
+            });
+          }
+        } else {
+          console.log(`❌ Match ${matchId} has ${usersWithThisMatch.length} users (expected 2)`);
         }
       });
     });
+    
+    console.log(`Total successful matches found: ${successfulMatches.length}`);
+    console.log('Successful matches:', successfulMatches.map(m => ({
+      user1: m.user1Data.name,
+      user2: m.user2Data.name,
+      matchId: m.matchId
+    })));
     
     return successfulMatches;
   } catch (error) {
