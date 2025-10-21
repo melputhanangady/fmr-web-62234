@@ -363,3 +363,36 @@ export const removeLike = async (currentUserId: string, likedUserId: string): Pr
     return false;
   }
 };
+
+/**
+ * Fetch users who have liked the current user
+ */
+export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> => {
+  try {
+    if (isDemoMode()) {
+      // In demo mode, return empty array or demo data
+      return [];
+    }
+
+    // Query all users to find those who have liked the current user
+    const usersRef = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersRef);
+    
+    const usersWhoLikedMe: any[] = [];
+    
+    usersSnapshot.forEach((doc) => {
+      const userData = doc.data();
+      if (userData.likedUsers && userData.likedUsers.includes(currentUserId)) {
+        usersWhoLikedMe.push({
+          id: doc.id,
+          ...userData
+        });
+      }
+    });
+    
+    return usersWhoLikedMe;
+  } catch (error) {
+    console.error('Error fetching users who liked me:', error);
+    return [];
+  }
+};
