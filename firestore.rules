@@ -140,5 +140,10 @@ service cloud.firestore {
       allow write: if isAuthenticated(); // Allow users to write analytics events
       allow read: if false; // Only admins should read analytics
     }
+    
+    // Match data collection (for ML model training)
+    match /matchData/{document=**} {
+      allow read, write: if isAuthenticated(); // Allow authenticated users to read/write match data
+    }
   }
 }

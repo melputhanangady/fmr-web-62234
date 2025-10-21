@@ -126,6 +126,10 @@ const Header: React.FC = () => {
     navigate('/likes');
   };
 
+  const handleAdminClick = () => {
+    navigate('/admin/match-data');
+  };
+
   return (
     <header className="bg-background border-b border-border px-6 py-4 shadow-sm">
       <div className="flex justify-end items-center space-x-4">
@@ -166,6 +170,9 @@ const Header: React.FC = () => {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLikesClick}>
               ❤️ My Likes
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleAdminClick}>
+              📊 Match Data Collector
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">

@@ -22,6 +22,7 @@ import PassedList from './pages/Passed/PassedList';
 import LikedByList from './pages/LikedBy/LikedByList';
 import MatchDebugger from './pages/Debug/MatchDebugger';
 import ChatDebugger from './pages/Debug/ChatDebugger';
+import MatchDataCollector from './pages/Admin/MatchDataCollector';
 
 const queryClient = new QueryClient();
 
@@ -149,6 +150,15 @@ function App() {
               } 
             />
             
+            <Route 
+              path="/admin/match-data" 
+              element={
+                <ProtectedRoute>
+                  <MatchDataCollector />
+                </ProtectedRoute>
+              } 
+            />
+            
             {/* Default redirect */}
             <Route path="/" element={<Navigate to="/discover" replace />} />
             
@@ -156,7 +166,7 @@ function App() {
             <Route path="*" element={<Navigate to="/discover" replace />} />
           </Routes>
           
-          </div>
+      </div>
           
           {/* Toast notifications */}
           <Toaster />
