@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ArrowLeft, MapPin, Calendar, Heart, X } from 'lucide-react';
+import VerificationBadge from '../../components/VerificationBadge';
 import type { User } from '../../types';
 
 const UserProfile: React.FC = () => {
@@ -307,7 +308,10 @@ const UserProfile: React.FC = () => {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                      <VerificationBadge isVerified={user.isMatchmakerVerified} />
+                    </div>
                     <div className="flex items-center text-gray-600 mt-1">
                       <MapPin className="h-4 w-4 mr-1" />
                       <span>{user.city}</span>

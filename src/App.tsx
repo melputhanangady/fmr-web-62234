@@ -23,6 +23,8 @@ import LikedByList from './pages/LikedBy/LikedByList';
 import MatchDebugger from './pages/Debug/MatchDebugger';
 import ChatDebugger from './pages/Debug/ChatDebugger';
 import MatchDataCollector from './pages/Admin/MatchDataCollector';
+import MatchMakerProfile from './pages/MatchMaker/MatchMakerProfile';
+import BulkUpload from './pages/MatchMaker/BulkUpload';
 
 const queryClient = new QueryClient();
 
@@ -155,6 +157,28 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MatchDataCollector />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/matchmaker/profile" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <MatchMakerProfile />
+                  </AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/matchmaker/bulk-upload" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <BulkUpload />
+                  </AppLayout>
                 </ProtectedRoute>
               } 
             />

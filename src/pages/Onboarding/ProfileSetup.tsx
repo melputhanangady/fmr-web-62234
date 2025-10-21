@@ -71,7 +71,7 @@ const CITIES = [
 ];
 
 const ProfileSetup: React.FC = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -103,7 +103,8 @@ const ProfileSetup: React.FC = () => {
       maxAge: 35,
       interestedIn: 'both' as 'men' | 'women' | 'both',
       cities: [] as string[]
-    }
+    },
+    role: 'regular' as 'regular' | 'matchmaker'
   });
 
   const handleInputChange = (field: string, value: any) => {
@@ -301,6 +302,49 @@ const ProfileSetup: React.FC = () => {
 
   const renderStep = () => {
     switch (step) {
+      case 0:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-900">Choose your role</h2>
+            <p className="text-gray-600">Select how you'd like to use Find My Rib</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div 
+                className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                  formData.role === 'regular' 
+                    ? 'border-primary-500 bg-primary-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => handleInputChange('role', 'regular')}
+              >
+                <div className="text-center">
+                  <div className="text-4xl mb-4">👤</div>
+                  <h3 className="text-xl font-semibold mb-2">Regular User</h3>
+                  <p className="text-gray-600">
+                    Create your profile and find matches. Perfect for individuals looking for love.
+                  </p>
+                </div>
+              </div>
+              
+              <div 
+                className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                  formData.role === 'matchmaker' 
+                    ? 'border-primary-500 bg-primary-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => handleInputChange('role', 'matchmaker')}
+              >
+                <div className="text-center">
+                  <div className="text-4xl mb-4">🎯</div>
+                  <h3 className="text-xl font-semibold mb-2">MatchMaker</h3>
+                  <p className="text-gray-600">
+                    Upload and manage profiles for your clients. Verified MatchMakers can upload profiles with verification badges.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       case 1:
         return (
           <div className="space-y-6">
@@ -736,15 +780,15 @@ const ProfileSetup: React.FC = () => {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>Step {step} of 8</span>
-            <span>{Math.round((step / 8) * 100)}%</span>
+            <span>Step {step + 1} of 9</span>
+            <span>{Math.round(((step + 1) / 9) * 100)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(step / 8) * 100}%` }}
-            />
-          </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(step / 9) * 100}%` }}
+              />
+            </div>
         </div>
 
         {renderStep()}

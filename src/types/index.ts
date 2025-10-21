@@ -1,3 +1,5 @@
+export type UserRole = 'regular' | 'matchmaker';
+
 export interface User {
   id: string;
   name: string;
@@ -29,6 +31,31 @@ export interface User {
   likedUsers: string[];
   passedUsers: string[];
   matches: string[];
+  // Role and verification
+  role: UserRole;
+  isMatchmakerVerified?: boolean;
+  matchmakerInfo?: MatchmakerInfo;
+}
+
+export interface MatchmakerInfo {
+  businessName: string;
+  licenseNumber?: string;
+  experience: number; // years
+  specialties: string[];
+  contactEmail: string;
+  phoneNumber?: string;
+  website?: string;
+  socialMedia?: {
+    instagram?: string;
+    linkedin?: string;
+    facebook?: string;
+  };
+  bio: string;
+  profilePhoto?: string;
+  verificationDocuments?: string[]; // URLs to uploaded documents
+  isVerified: boolean;
+  verifiedAt?: Date;
+  verifiedBy?: string; // Admin user ID who verified
 }
 
 export interface Match {

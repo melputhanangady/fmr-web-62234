@@ -174,6 +174,12 @@ const Header: React.FC = () => {
             <DropdownMenuItem onClick={handleAdminClick}>
               📊 Match Data Collector
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/matchmaker/profile')}>
+              🎯 MatchMaker Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/matchmaker/bulk-upload')}>
+              📤 Bulk Upload
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">
               🚪 Logout
