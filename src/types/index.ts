@@ -1,4 +1,4 @@
-export type UserRole = 'regular' | 'matchmaker';
+export type UserRole = 'regular' | 'matchmaker' | 'admin';
 
 export interface User {
   id: string;

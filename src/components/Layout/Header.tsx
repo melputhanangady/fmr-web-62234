@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { isDemoMode } from '../../utils/demoMode';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../config/firebase';
+import { isAdmin } from '../../utils/adminCheck';
 import NotificationIcon from '../NotificationIcon';
 
 const Header: React.FC = () => {
@@ -19,6 +20,7 @@ const Header: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [userPhoto, setUserPhoto] = useState<string>('');
+  const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserData = async (userId: string) => {
@@ -48,6 +50,8 @@ const Header: React.FC = () => {
             setFirstName('User');
             setUserPhoto('');
           }
+          // Demo mode users are not admin
+          setIsAdminUser(false);
         } else {
           // In production mode, get data from Firestore
           console.log('Header: Production mode - fetching from Firestore for user:', userId);
@@ -58,11 +62,16 @@ const Header: React.FC = () => {
             setUserName(userData.name || 'User');
             setFirstName(userData.firstName || userData.name?.split(' ')[0] || 'User');
             setUserPhoto(userData.photos?.[0] || '');
+            
+            // Check admin status
+            const adminStatus = await isAdmin(userId);
+            setIsAdminUser(adminStatus);
           } else {
             console.log('Header: No user document found in Firestore');
             setUserName('User');
             setFirstName('User');
             setUserPhoto('');
+            setIsAdminUser(false);
           }
         }
       } catch (error) {
@@ -70,6 +79,7 @@ const Header: React.FC = () => {
         setUserName('User');
         setFirstName('User');
         setUserPhoto('');
+        setIsAdminUser(false);
       }
     };
 
@@ -82,6 +92,7 @@ const Header: React.FC = () => {
         setUserName('');
         setFirstName('');
         setUserPhoto('');
+        setIsAdminUser(false);
       }
     });
 
@@ -171,9 +182,11 @@ const Header: React.FC = () => {
             <DropdownMenuItem onClick={handleLikesClick}>
               ❤️ My Likes
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleAdminClick}>
-              📊 Match Data Collector
-            </DropdownMenuItem>
+            {isAdminUser && (
+              <DropdownMenuItem onClick={handleAdminClick}>
+                📊 Match Data Collector
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => navigate('/matchmaker/profile')}>
               🎯 MatchMaker Profile
             </DropdownMenuItem>

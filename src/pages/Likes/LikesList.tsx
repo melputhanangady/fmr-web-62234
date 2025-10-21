@@ -55,6 +55,7 @@ const LikesList: React.FC = () => {
               likedUsers: [],
               passedUsers: [],
               matches: [],
+              role: 'regular',
               isMatched: false
             },
             {
@@ -74,6 +75,7 @@ const LikesList: React.FC = () => {
               likedUsers: [],
               passedUsers: [],
               matches: [],
+              role: 'regular',
               isMatched: false
             }
           ];

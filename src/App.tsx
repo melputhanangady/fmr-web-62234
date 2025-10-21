@@ -25,6 +25,7 @@ import ChatDebugger from './pages/Debug/ChatDebugger';
 import MatchDataCollector from './pages/Admin/MatchDataCollector';
 import MatchMakerProfile from './pages/MatchMaker/MatchMakerProfile';
 import BulkUpload from './pages/MatchMaker/BulkUpload';
+import AdminRoute from './components/AdminRoute';
 
 const queryClient = new QueryClient();
 
@@ -156,7 +157,9 @@ function App() {
               path="/admin/match-data" 
               element={
                 <ProtectedRoute>
-                  <MatchDataCollector />
+                  <AdminRoute>
+                    <MatchDataCollector />
+                  </AdminRoute>
                 </ProtectedRoute>
               } 
             />
