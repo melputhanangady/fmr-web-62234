@@ -18,6 +18,7 @@ import ChatRoom from './pages/Chat/ChatRoom';
 import ProfileSettings from './pages/Profile/ProfileSettings';
 import UserProfile from './pages/Profile/UserProfile';
 import LikesList from './pages/Likes/LikesList';
+import PassedList from './pages/Passed/PassedList';
 import MatchDebugger from './pages/Debug/MatchDebugger';
 import ChatDebugger from './pages/Debug/ChatDebugger';
 
@@ -102,6 +103,17 @@ function App() {
                 <ProtectedRoute>
                   <AppLayout>
                     <LikesList />
+                  </AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/passed" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PassedList />
                   </AppLayout>
                 </ProtectedRoute>
               } 

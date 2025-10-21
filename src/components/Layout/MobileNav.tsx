@@ -10,6 +10,7 @@ const MobileNav: React.FC = () => {
     { path: '/discover', label: 'Discover', icon: '🔍' },
     { path: '/matches', label: 'Matches', icon: '💕' },
     { path: '/likes', label: 'Likes', icon: '❤️' },
+    { path: '/passed', label: 'Passed', icon: '👎' },
     { path: '/profile', label: 'Profile', icon: '👤' }
   ];
 
