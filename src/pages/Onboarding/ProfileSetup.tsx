@@ -232,6 +232,9 @@ const ProfileSetup: React.FC = () => {
         // Store profile with photos in production mode
         const profileData = {
           name: userData.name,
+          firstName: userData.firstName,
+          middleName: userData.middleName,
+          lastName: userData.lastName,
           age: userData.age,
           bio: userData.bio,
           city: userData.city,
