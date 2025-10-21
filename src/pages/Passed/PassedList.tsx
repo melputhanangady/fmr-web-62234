@@ -178,7 +178,11 @@ const PassedList: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {passedUsers.map((user) => (
-              <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card 
+                key={user.id} 
+                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate(`/profile/${user.id}`)}
+              >
                 <CardContent className="p-0">
                   {/* Profile Photo */}
                   <div className="relative h-64 bg-gray-200">
@@ -239,7 +243,7 @@ const PassedList: React.FC = () => {
                     )}
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="secondary"
                         size="sm"
@@ -250,7 +254,10 @@ const PassedList: React.FC = () => {
                         Passed
                       </Button>
                       <Button
-                        onClick={() => handleLike(user.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(user.id);
+                        }}
                         size="sm"
                         className="flex-1 bg-primary hover:bg-primary/90"
                         disabled={actionLoading === user.id}
