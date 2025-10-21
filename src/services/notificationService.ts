@@ -378,7 +378,7 @@ export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> 
     const currentUserRef = doc(db, 'users', currentUserId);
     const currentUserDoc = await getDoc(currentUserRef);
     const currentUserMatches = currentUserDoc.exists() ? currentUserDoc.data().matches || [] : [];
-
+    
     // Query all users to find those who have liked the current user
     const usersRef = collection(db, 'users');
     const usersSnapshot = await getDocs(usersRef);
@@ -395,8 +395,11 @@ export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> 
         const otherUserMatches = userData.matches || [];
         const isAlreadyMatched = currentUserMatches.includes(userId) && otherUserMatches.includes(currentUserId);
         
-        // Only include if not already matched
-        if (!isAlreadyMatched) {
+        // Also check if they share any match IDs (in case matches are stored as match IDs rather than user IDs)
+        const hasSharedMatches = currentUserMatches.some(matchId => otherUserMatches.includes(matchId));
+        
+        // Only include if not already matched (either by user IDs or shared match IDs)
+        if (!isAlreadyMatched && !hasSharedMatches) {
           usersWhoLikedMe.push({
             id: userId,
             ...userData
@@ -404,7 +407,6 @@ export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> 
         }
       }
     });
-    
     return usersWhoLikedMe;
   } catch (error) {
     console.error('Error fetching users who liked me:', error);
