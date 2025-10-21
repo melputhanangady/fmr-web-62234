@@ -79,7 +79,9 @@ const ProfileSetup: React.FC = () => {
 
   // Form data
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    middleName: '',
+    lastName: '',
     age: '',
     bio: '',
     city: '',
@@ -176,7 +178,10 @@ const ProfileSetup: React.FC = () => {
     // Sanitize input data
     const sanitizedData = {
       ...formData,
-      name: InputSanitizer.sanitizeText(formData.name),
+      name: InputSanitizer.sanitizeText(`${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim()),
+      firstName: InputSanitizer.sanitizeText(formData.firstName),
+      middleName: InputSanitizer.sanitizeText(formData.middleName),
+      lastName: InputSanitizer.sanitizeText(formData.lastName),
       bio: InputSanitizer.sanitizeHtml(formData.bio),
       city: InputSanitizer.sanitizeText(formData.city),
       interests: formData.interests.map(interest => InputSanitizer.sanitizeText(interest))
@@ -298,18 +303,47 @@ const ProfileSetup: React.FC = () => {
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Tell us about yourself</h2>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                What's your name? *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter your name"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter your first name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Middle Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.middleName}
+                  onChange={(e) => handleInputChange('middleName', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter your middle name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter your last name"
+                  required
+                />
+              </div>
             </div>
 
             <div>

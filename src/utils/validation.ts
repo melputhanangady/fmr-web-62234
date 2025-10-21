@@ -44,6 +44,63 @@ export const validateName = (name: string): ValidationResult => {
   };
 };
 
+export const validateFirstName = (firstName: string): ValidationResult => {
+  const errors: string[] = [];
+  
+  if (!firstName || firstName.trim().length === 0) {
+    errors.push('First name is required');
+  } else if (firstName.length < 2) {
+    errors.push('First name must be at least 2 characters');
+  } else if (firstName.length > 30) {
+    errors.push('First name must be less than 30 characters');
+  } else if (!/^[a-zA-Z'-]+$/.test(firstName)) {
+    errors.push('First name can only contain letters, hyphens, and apostrophes');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+export const validateMiddleName = (middleName: string): ValidationResult => {
+  const errors: string[] = [];
+  
+  if (middleName && middleName.trim().length > 0) {
+    if (middleName.length < 2) {
+      errors.push('Middle name must be at least 2 characters');
+    } else if (middleName.length > 30) {
+      errors.push('Middle name must be less than 30 characters');
+    } else if (!/^[a-zA-Z'-]+$/.test(middleName)) {
+      errors.push('Middle name can only contain letters, hyphens, and apostrophes');
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+export const validateLastName = (lastName: string): ValidationResult => {
+  const errors: string[] = [];
+  
+  if (!lastName || lastName.trim().length === 0) {
+    errors.push('Last name is required');
+  } else if (lastName.length < 2) {
+    errors.push('Last name must be at least 2 characters');
+  } else if (lastName.length > 30) {
+    errors.push('Last name must be less than 30 characters');
+  } else if (!/^[a-zA-Z'-]+$/.test(lastName)) {
+    errors.push('Last name can only contain letters, hyphens, and apostrophes');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
 export const validateAge = (age: number | string): ValidationResult => {
   const errors: string[] = [];
   const ageNum = typeof age === 'string' ? parseInt(age, 10) : age;
@@ -311,6 +368,9 @@ const getMinInterval = (action: string): number => {
 // Comprehensive user profile validation
 export const validateUserProfile = (profile: {
   name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
   age: number;
   bio: string;
   city: string;
@@ -325,8 +385,22 @@ export const validateUserProfile = (profile: {
 }, requirePhotos: boolean = true): ValidationResult => {
   const allErrors: string[] = [];
   
-  // Validate each field
-  const nameResult = validateName(profile.name);
+  // Validate name fields if they exist (new structure)
+  if (profile.firstName !== undefined || profile.lastName !== undefined) {
+    const firstNameResult = validateFirstName(profile.firstName || '');
+    const middleNameResult = validateMiddleName(profile.middleName || '');
+    const lastNameResult = validateLastName(profile.lastName || '');
+    
+    allErrors.push(...firstNameResult.errors);
+    allErrors.push(...middleNameResult.errors);
+    allErrors.push(...lastNameResult.errors);
+  } else {
+    // Fallback to old name validation
+    const nameResult = validateName(profile.name);
+    allErrors.push(...nameResult.errors);
+  }
+  
+  // Validate other fields
   const ageResult = validateAge(profile.age);
   const bioResult = validateBio(profile.bio);
   const cityResult = validateCity(profile.city);
@@ -335,7 +409,6 @@ export const validateUserProfile = (profile: {
   const preferencesResult = validatePreferences(profile.preferences);
   
   // Collect all errors
-  allErrors.push(...nameResult.errors);
   allErrors.push(...ageResult.errors);
   allErrors.push(...bioResult.errors);
   allErrors.push(...cityResult.errors);
