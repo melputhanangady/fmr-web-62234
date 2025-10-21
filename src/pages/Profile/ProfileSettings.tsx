@@ -19,7 +19,8 @@ const CITIES = [
   'San Antonio', 'San Diego', 'Dallas', 'San Jose', 'Austin', 'Jacksonville',
   'Fort Worth', 'Columbus', 'Charlotte', 'San Francisco', 'Indianapolis',
   'Seattle', 'Denver', 'Washington', 'Boston', 'El Paso', 'Nashville',
-  'Detroit', 'Oklahoma City', 'Portland', 'Las Vegas', 'Memphis', 'Louisville'
+  'Detroit', 'Oklahoma City', 'Portland', 'Las Vegas', 'Memphis', 'Louisville',
+  'Miami'
 ];
 
 interface UserProfile {
