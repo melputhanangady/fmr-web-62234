@@ -374,6 +374,11 @@ export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> 
       return [];
     }
 
+    // First, get the current user's matches to filter them out
+    const currentUserRef = doc(db, 'users', currentUserId);
+    const currentUserDoc = await getDoc(currentUserRef);
+    const currentUserMatches = currentUserDoc.exists() ? currentUserDoc.data().matches || [] : [];
+
     // Query all users to find those who have liked the current user
     const usersRef = collection(db, 'users');
     const usersSnapshot = await getDocs(usersRef);
@@ -382,9 +387,14 @@ export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> 
     
     usersSnapshot.forEach((doc) => {
       const userData = doc.data();
-      if (userData.likedUsers && userData.likedUsers.includes(currentUserId)) {
+      const userId = doc.id;
+      
+      // Check if this user liked the current user AND is not already matched
+      if (userData.likedUsers && 
+          userData.likedUsers.includes(currentUserId) && 
+          !currentUserMatches.includes(userId)) {
         usersWhoLikedMe.push({
-          id: doc.id,
+          id: userId,
           ...userData
         });
       }
