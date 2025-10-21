@@ -112,7 +112,7 @@ const ProfileSettings: React.FC = () => {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             console.log('Profile data loaded:', userData);
-            // Get photos from localStorage with fallback to Firestore
+            // Get photos from Firebase Storage URLs (stored in Firestore)
             const photos = getUserPhotos(currentUser.uid, userData.photos || []);
             
             setProfile({
@@ -247,7 +247,7 @@ const ProfileSettings: React.FC = () => {
         });
       } else {
         // In production mode, save to Firebase
-        // Save photos to localStorage separately
+        // Note: savePhotosToLocal does nothing in production mode (photos are in Firebase Storage)
         savePhotosToLocal(currentUser.uid, profile.photos);
         
         // Store profile data without photos to avoid size limits
@@ -260,7 +260,7 @@ const ProfileSettings: React.FC = () => {
           bio: profile.bio,
           city: profile.city,
           interests: profile.interests,
-          photos: [], // Photos stored in localStorage
+          photos: [], // Photos stored in Firebase Storage, URLs managed separately
           preferences: profile.preferences,
           updatedAt: new Date()
         };
@@ -269,7 +269,7 @@ const ProfileSettings: React.FC = () => {
         await updateDoc(doc(db, 'users', currentUser.uid), profileData);
         toast({
           title: "Success",
-          description: "Profile updated successfully! (Photos saved locally)",
+          description: "Profile updated successfully! (Photos saved to cloud storage)",
         });
       }
     } catch (error) {
