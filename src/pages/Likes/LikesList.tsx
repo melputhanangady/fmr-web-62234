@@ -240,8 +240,8 @@ const LikesList: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {likedUsers.map((user) => (
-              <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
+              <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+                <CardContent className="p-0 flex flex-col h-full">
                   {/* Profile Photo */}
                   <div className="relative h-48 bg-gray-200">
                     {user.photos && user.photos.length > 0 ? (
@@ -269,7 +269,7 @@ const LikesList: React.FC = () => {
                   </div>
 
                   {/* Profile Info */}
-                  <div className="p-4">
+                  <div className="p-4 flex flex-col flex-grow">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-lg text-gray-900">{user.name}</h3>
@@ -303,7 +303,7 @@ const LikesList: React.FC = () => {
                     )}
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 mt-auto">
                       <Button
                         variant="outline"
                         size="sm"
