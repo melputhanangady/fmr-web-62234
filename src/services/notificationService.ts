@@ -389,14 +389,19 @@ export const getUsersWhoLikedMe = async (currentUserId: string): Promise<any[]> 
       const userData = doc.data();
       const userId = doc.id;
       
-      // Check if this user liked the current user AND is not already matched
-      if (userData.likedUsers && 
-          userData.likedUsers.includes(currentUserId) && 
-          !currentUserMatches.includes(userId)) {
-        usersWhoLikedMe.push({
-          id: userId,
-          ...userData
-        });
+      // Check if this user liked the current user
+      if (userData.likedUsers && userData.likedUsers.includes(currentUserId)) {
+        // Check if they are already matched (both users have each other in matches)
+        const otherUserMatches = userData.matches || [];
+        const isAlreadyMatched = currentUserMatches.includes(userId) && otherUserMatches.includes(currentUserId);
+        
+        // Only include if not already matched
+        if (!isAlreadyMatched) {
+          usersWhoLikedMe.push({
+            id: userId,
+            ...userData
+          });
+        }
       }
     });
     
