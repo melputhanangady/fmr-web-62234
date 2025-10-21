@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, X, MapPin, ArrowLeft } from 'lucide-react';
+import { Heart, X, MapPin, ArrowLeft, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { likeUser } from '../../services/matchService';
 import { removeLike } from '../../services/notificationService';
@@ -178,11 +178,7 @@ const PassedList: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {passedUsers.map((user) => (
-              <Card 
-                key={user.id} 
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => navigate(`/profile/${user.id}`)}
-              >
+              <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
                   {/* Profile Photo */}
                   <div className="relative h-64 bg-gray-200">
@@ -243,21 +239,18 @@ const PassedList: React.FC = () => {
                     )}
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex space-x-2">
                       <Button
-                        variant="secondary"
+                        onClick={() => navigate(`/profile/${user.id}`)}
+                        variant="outline"
                         size="sm"
                         className="flex-1"
-                        disabled
                       >
-                        <X className="w-4 h-4 mr-1" />
-                        Passed
+                        <Eye className="w-4 h-4 mr-1" />
+                        View Profile
                       </Button>
                       <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleLike(user.id);
-                        }}
+                        onClick={() => handleLike(user.id)}
                         size="sm"
                         className="flex-1 bg-primary hover:bg-primary/90"
                         disabled={actionLoading === user.id}
