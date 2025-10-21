@@ -1,0 +1,224 @@
+/* UI Improvements for Find My Rib App */
+
+/* Enhanced Typography */
+.enhanced-title {
+  @apply text-3xl font-bold text-gray-900 mb-2;
+}
+
+.enhanced-subtitle {
+  @apply text-gray-600 text-base;
+}
+
+.enhanced-section-title {
+  @apply text-xl font-semibold text-gray-900 mb-4;
+}
+
+.enhanced-description {
+  @apply text-sm text-gray-600;
+}
+
+/* Enhanced Layout */
+.enhanced-container {
+  @apply min-h-screen bg-gray-50 p-8;
+}
+
+.enhanced-content {
+  @apply max-w-6xl mx-auto;
+}
+
+.enhanced-section {
+  @apply mb-8;
+}
+
+/* Enhanced Cards */
+.enhanced-card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+}
+
+.enhanced-card-header {
+  @apply p-6 border-b border-gray-100;
+}
+
+.enhanced-card-content {
+  @apply p-6;
+}
+
+.enhanced-card-title {
+  @apply text-lg font-semibold text-gray-900 mb-2;
+}
+
+.enhanced-card-description {
+  @apply text-sm text-gray-600;
+}
+
+/* Enhanced Statistics Cards */
+.enhanced-stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8;
+}
+
+.enhanced-stat-card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200;
+}
+
+.enhanced-stat-icon {
+  @apply h-8 w-8;
+}
+
+.enhanced-stat-value {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+.enhanced-stat-label {
+  @apply text-sm font-medium text-gray-600;
+}
+
+.enhanced-stat-description {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+/* Enhanced Profile Cards */
+.enhanced-profile-card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300;
+}
+
+.enhanced-profile-image {
+  @apply relative h-48 bg-gray-200;
+}
+
+.enhanced-profile-content {
+  @apply p-6;
+}
+
+.enhanced-profile-name {
+  @apply text-lg font-semibold text-gray-900 mb-1;
+}
+
+.enhanced-profile-details {
+  @apply text-sm text-gray-600 mb-3;
+}
+
+.enhanced-profile-bio {
+  @apply text-sm text-gray-700 mb-4 line-clamp-2;
+}
+
+/* Enhanced Buttons */
+.enhanced-primary-button {
+  @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md;
+}
+
+.enhanced-secondary-button {
+  @apply bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors duration-200;
+}
+
+.enhanced-action-button {
+  @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md;
+}
+
+/* Enhanced Empty States */
+.enhanced-empty-state {
+  @apply text-center py-16;
+}
+
+.enhanced-empty-icon {
+  @apply text-gray-400 mb-6;
+}
+
+.enhanced-empty-title {
+  @apply text-xl font-semibold text-gray-900 mb-2;
+}
+
+.enhanced-empty-description {
+  @apply text-gray-600 mb-6 max-w-md mx-auto;
+}
+
+/* Enhanced Loading States */
+.enhanced-loading {
+  @apply min-h-screen flex items-center justify-center;
+}
+
+.enhanced-loading-spinner {
+  @apply inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500;
+}
+
+.enhanced-loading-text {
+  @apply mt-4 text-gray-600;
+}
+
+/* Enhanced Notifications */
+.enhanced-notification {
+  @apply bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg;
+}
+
+.enhanced-notification-success {
+  @apply bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-r-lg;
+}
+
+.enhanced-notification-warning {
+  @apply bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg;
+}
+
+.enhanced-notification-error {
+  @apply bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-lg;
+}
+
+/* Enhanced Form Elements */
+.enhanced-form-group {
+  @apply space-y-2;
+}
+
+.enhanced-form-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.enhanced-form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+}
+
+.enhanced-form-textarea {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none;
+}
+
+.enhanced-form-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+}
+
+/* Enhanced Grid Layouts */
+.enhanced-grid-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.enhanced-grid-3 {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.enhanced-grid-4 {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+/* Enhanced Spacing */
+.enhanced-section-spacing {
+  @apply mb-8;
+}
+
+.enhanced-card-spacing {
+  @apply mb-6;
+}
+
+.enhanced-element-spacing {
+  @apply mb-4;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-container {
+    @apply p-4;
+  }
+  
+  .enhanced-content {
+    @apply max-w-full;
+  }
+  
+  .enhanced-stats-grid {
+    @apply grid-cols-1 gap-4;
+  }
+}

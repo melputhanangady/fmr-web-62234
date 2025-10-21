@@ -143,7 +143,7 @@ const PassedList: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center space-x-4">
             <Button
               onClick={handleBack}
@@ -163,7 +163,7 @@ const PassedList: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6">
         {passedUsers.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">😔</div>

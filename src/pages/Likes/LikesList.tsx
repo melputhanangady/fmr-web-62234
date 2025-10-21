@@ -202,7 +202,7 @@ const LikesList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
             <Heart className="h-8 w-8 text-red-500" />
@@ -240,7 +240,7 @@ const LikesList: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {likedUsers.map((user) => (
-              <Card key={user.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+              <Card key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
                 <CardContent className="p-0 flex flex-col h-full">
                   {/* Profile Photo */}
                   <div className="relative h-48 bg-gray-200">

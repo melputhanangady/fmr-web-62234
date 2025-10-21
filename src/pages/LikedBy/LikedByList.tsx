@@ -99,7 +99,7 @@ const LikedByList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
             <Heart className="h-8 w-8 text-pink-500" />
