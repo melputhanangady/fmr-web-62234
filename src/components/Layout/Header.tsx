@@ -17,6 +17,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userName, setUserName] = useState<string>('');
+  const [firstName, setFirstName] = useState<string>('');
   const [userPhoto, setUserPhoto] = useState<string>('');
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const Header: React.FC = () => {
       if (!userId) {
         console.log('Header: No userId, clearing user data');
         setUserName('');
+        setFirstName('');
         setUserPhoto('');
         return;
       }
@@ -38,10 +40,12 @@ const Header: React.FC = () => {
             const userData = JSON.parse(demoProfile);
             console.log('Header: Demo mode - setting user data:', userData.name);
             setUserName(userData.name || 'User');
+            setFirstName(userData.firstName || userData.name?.split(' ')[0] || 'User');
             setUserPhoto(userData.photos?.[0] || '');
           } else {
             console.log('Header: Demo mode - no demo profile found');
             setUserName('User');
+            setFirstName('User');
             setUserPhoto('');
           }
         } else {
@@ -52,16 +56,19 @@ const Header: React.FC = () => {
             const userData = userDoc.data();
             console.log('Header: Firestore user data:', userData);
             setUserName(userData.name || 'User');
+            setFirstName(userData.firstName || userData.name?.split(' ')[0] || 'User');
             setUserPhoto(userData.photos?.[0] || '');
           } else {
             console.log('Header: No user document found in Firestore');
             setUserName('User');
+            setFirstName('User');
             setUserPhoto('');
           }
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
         setUserName('User');
+        setFirstName('User');
         setUserPhoto('');
       }
     };
@@ -73,6 +80,7 @@ const Header: React.FC = () => {
         fetchUserData(user.uid);
       } else {
         setUserName('');
+        setFirstName('');
         setUserPhoto('');
       }
     });
@@ -89,6 +97,7 @@ const Header: React.FC = () => {
     try {
       await logout();
       setUserName(''); // Clear userName on logout
+      setFirstName(''); // Clear firstName on logout
       setUserPhoto(''); // Clear userPhoto on logout
       toast({
         title: "Success",
@@ -129,15 +138,15 @@ const Header: React.FC = () => {
             <Button variant="ghost" className="flex items-center space-x-3">
               <Avatar className="w-8 h-8">
                 {userPhoto ? (
-                  <AvatarImage src={userPhoto} alt={userName || 'User'} />
+                  <AvatarImage src={userPhoto} alt={firstName || 'User'} />
                 ) : null}
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {userName?.charAt(0).toUpperCase() || 'U'}
+                  {firstName?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="text-left">
                 <p className="text-sm font-medium">
-                  {userName || 'User'}
+                  {firstName || 'User'}
                 </p>
                 <p className="text-xs text-muted-foreground">Signed in</p>
               </div>
@@ -145,7 +154,7 @@ const Header: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium">{userName || 'User'}</p>
+              <p className="text-sm font-medium">{firstName || 'User'}</p>
               <p className="text-xs text-muted-foreground">Signed in</p>
             </div>
             <DropdownMenuSeparator />
