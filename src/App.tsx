@@ -26,6 +26,7 @@ import MatchDataCollector from './pages/Admin/MatchDataCollector';
 import MatchMakerProfile from './pages/MatchMaker/MatchMakerProfile';
 import BulkUpload from './pages/MatchMaker/BulkUpload';
 import AdminRoute from './components/AdminRoute';
+import MatchMakerRoute from './components/MatchMakerRoute';
 
 const queryClient = new QueryClient();
 
@@ -168,9 +169,11 @@ function App() {
               path="/matchmaker/profile" 
               element={
                 <ProtectedRoute>
-                  <AppLayout>
-                    <MatchMakerProfile />
-                  </AppLayout>
+                  <MatchMakerRoute>
+                    <AppLayout>
+                      <MatchMakerProfile />
+                    </AppLayout>
+                  </MatchMakerRoute>
                 </ProtectedRoute>
               } 
             />
@@ -179,9 +182,11 @@ function App() {
               path="/matchmaker/bulk-upload" 
               element={
                 <ProtectedRoute>
-                  <AppLayout>
-                    <BulkUpload />
-                  </AppLayout>
+                  <MatchMakerRoute>
+                    <AppLayout>
+                      <BulkUpload />
+                    </AppLayout>
+                  </MatchMakerRoute>
                 </ProtectedRoute>
               } 
             />

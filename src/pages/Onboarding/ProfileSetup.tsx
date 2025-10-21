@@ -104,7 +104,22 @@ const ProfileSetup: React.FC = () => {
       interestedIn: 'both' as 'men' | 'women' | 'both',
       cities: [] as string[]
     },
-    role: 'regular' as 'regular' | 'matchmaker'
+    role: 'regular' as 'regular' | 'matchmaker',
+    // MatchMaker specific fields
+    businessName: '',
+    licenseNumber: '',
+    experience: 0,
+    specialties: [] as string[],
+    contactEmail: '',
+    phoneNumber: '',
+    website: '',
+    socialMedia: {
+      instagram: '',
+      linkedin: '',
+      facebook: ''
+    },
+    professionalBio: '',
+    verificationDocuments: [] as string[]
   });
 
   const handleInputChange = (field: string, value: any) => {
@@ -348,7 +363,9 @@ const ProfileSetup: React.FC = () => {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Tell us about yourself</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {formData.role === 'matchmaker' ? 'Tell us about your business' : 'Tell us about yourself'}
+            </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -408,6 +425,85 @@ const ProfileSetup: React.FC = () => {
                 required
               />
             </div>
+
+            {/* MatchMaker specific fields */}
+            {formData.role === 'matchmaker' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Business Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.businessName}
+                      onChange={(e) => handleInputChange('businessName', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter your business name"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      License Number
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.licenseNumber}
+                      onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter license number (optional)"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Years of Experience *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.experience}
+                      onChange={(e) => handleInputChange('experience', parseInt(e.target.value) || 0)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter years of experience"
+                      min="0"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Contact Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.contactEmail}
+                      onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter contact email"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Professional Bio *
+                  </label>
+                  <textarea
+                    value={formData.professionalBio}
+                    onChange={(e) => handleInputChange('professionalBio', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Tell us about your matchmaking experience and approach..."
+                    rows={4}
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

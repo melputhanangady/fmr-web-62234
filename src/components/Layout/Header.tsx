@@ -21,6 +21,7 @@ const Header: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [userPhoto, setUserPhoto] = useState<string>('');
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
+  const [isMatchMaker, setIsMatchMaker] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserData = async (userId: string) => {
@@ -50,8 +51,9 @@ const Header: React.FC = () => {
             setFirstName('User');
             setUserPhoto('');
           }
-          // Demo mode users are not admin
+          // Demo mode users are not admin or matchmaker
           setIsAdminUser(false);
+          setIsMatchMaker(false);
         } else {
           // In production mode, get data from Firestore
           console.log('Header: Production mode - fetching from Firestore for user:', userId);
@@ -63,15 +65,17 @@ const Header: React.FC = () => {
             setFirstName(userData.firstName || userData.name?.split(' ')[0] || 'User');
             setUserPhoto(userData.photos?.[0] || '');
             
-            // Check admin status
+            // Check admin and matchmaker status
             const adminStatus = await isAdmin(userId);
             setIsAdminUser(adminStatus);
+            setIsMatchMaker(userData.role === 'matchmaker');
           } else {
             console.log('Header: No user document found in Firestore');
             setUserName('User');
             setFirstName('User');
             setUserPhoto('');
             setIsAdminUser(false);
+            setIsMatchMaker(false);
           }
         }
       } catch (error) {
@@ -80,6 +84,7 @@ const Header: React.FC = () => {
         setFirstName('User');
         setUserPhoto('');
         setIsAdminUser(false);
+        setIsMatchMaker(false);
       }
     };
 
@@ -93,6 +98,7 @@ const Header: React.FC = () => {
         setFirstName('');
         setUserPhoto('');
         setIsAdminUser(false);
+        setIsMatchMaker(false);
       }
     });
 
@@ -187,12 +193,16 @@ const Header: React.FC = () => {
                 📊 Match Data Collector
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => navigate('/matchmaker/profile')}>
-              🎯 MatchMaker Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/matchmaker/bulk-upload')}>
-              📤 Bulk Upload
-            </DropdownMenuItem>
+            {isMatchMaker && (
+              <>
+                <DropdownMenuItem onClick={() => navigate('/matchmaker/profile')}>
+                  🎯 MatchMaker Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/matchmaker/bulk-upload')}>
+                  📤 Bulk Upload
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">
               🚪 Logout
