@@ -25,6 +25,9 @@ const CITIES = [
 
 interface UserProfile {
   name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
   age: number;
   bio: string;
   city: string;
@@ -48,6 +51,9 @@ const ProfileSettings: React.FC = () => {
 
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
+    firstName: '',
+    middleName: '',
+    lastName: '',
     age: 25,
     bio: '',
     city: '',
@@ -80,6 +86,9 @@ const ProfileSettings: React.FC = () => {
             const userData = JSON.parse(demoProfile);
             setProfile({
               name: userData.name || '',
+              firstName: userData.firstName || '',
+              middleName: userData.middleName || '',
+              lastName: userData.lastName || '',
               age: userData.age || 25,
               bio: userData.bio || '',
               city: userData.city || '',
@@ -108,6 +117,9 @@ const ProfileSettings: React.FC = () => {
             
             setProfile({
               name: userData.name || '',
+              firstName: userData.firstName || '',
+              middleName: userData.middleName || '',
+              lastName: userData.lastName || '',
               age: userData.age || 25,
               bio: userData.bio || '',
               city: userData.city || '',
@@ -190,10 +202,11 @@ const ProfileSettings: React.FC = () => {
 
     console.log('Saving profile with preferences:', profile.preferences);
 
-    if (!profile.name || !profile.bio || !profile.city) {
+    // Validate required name fields
+    if (!profile.firstName || !profile.lastName || !profile.bio || !profile.city) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (First Name, Last Name, Bio, City)",
         variant: "destructive",
       });
       return;
@@ -239,7 +252,10 @@ const ProfileSettings: React.FC = () => {
         
         // Store profile data without photos to avoid size limits
         const profileData = {
-          name: profile.name,
+          name: profile.name || `${profile.firstName} ${profile.middleName} ${profile.lastName}`.trim(),
+          firstName: profile.firstName,
+          middleName: profile.middleName,
+          lastName: profile.lastName,
           age: profile.age,
           bio: profile.bio,
           city: profile.city,
@@ -336,17 +352,49 @@ const ProfileSettings: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={profile.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                    />
+                  <div className="md:col-span-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          First Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={profile.firstName}
+                          onChange={(e) => handleInputChange('firstName', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="Enter your first name"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Middle Name
+                        </label>
+                        <input
+                          type="text"
+                          value={profile.middleName}
+                          onChange={(e) => handleInputChange('middleName', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="Enter your middle name"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Last Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={profile.lastName}
+                          onChange={(e) => handleInputChange('lastName', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="Enter your last name"
+                          required
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
