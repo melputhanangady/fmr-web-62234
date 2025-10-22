@@ -22,6 +22,7 @@ import PassedList from './pages/Passed/PassedList';
 import LikedByList from './pages/LikedBy/LikedByList';
 import MatchDebugger from './pages/Debug/MatchDebugger';
 import ChatDebugger from './pages/Debug/ChatDebugger';
+import RateLimitDebugger from './pages/Debug/RateLimitDebugger';
 import MatchDataCollector from './pages/Admin/MatchDataCollector';
 import MatchMakerProfile from './pages/MatchMaker/MatchMakerProfile';
 import BulkUpload from './pages/MatchMaker/BulkUpload';
@@ -150,6 +151,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ChatDebugger />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/debug/rate-limits" 
+              element={
+                <ProtectedRoute>
+                  <RateLimitDebugger />
                 </ProtectedRoute>
               } 
             />

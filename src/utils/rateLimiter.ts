@@ -21,7 +21,7 @@ class RateLimiter {
     this.configs.set('like', { maxRequests: 50, windowMs: 60000, blockDurationMs: 300000 }); // 50 likes per minute, 5min block
     this.configs.set('pass', { maxRequests: 100, windowMs: 60000, blockDurationMs: 300000 }); // 100 passes per minute, 5min block
     this.configs.set('message', { maxRequests: 30, windowMs: 60000, blockDurationMs: 300000 }); // 30 messages per minute, 5min block
-    this.configs.set('profile_create', { maxRequests: 3, windowMs: 600000, blockDurationMs: 300000 }); // 3 creations per 10min, 5min block
+    this.configs.set('profile_create', { maxRequests: 5, windowMs: 300000, blockDurationMs: 300000 }); // 5 creations per 5min, 5min block
     this.configs.set('profile_update', { maxRequests: 5, windowMs: 300000, blockDurationMs: 600000 }); // 5 updates per 5min, 10min block
     this.configs.set('photo_upload', { maxRequests: 10, windowMs: 300000, blockDurationMs: 600000 }); // 10 uploads per 5min, 10min block
     this.configs.set('login_attempt', { maxRequests: 5, windowMs: 300000, blockDurationMs: 1800000 }); // 5 attempts per 5min, 30min block
