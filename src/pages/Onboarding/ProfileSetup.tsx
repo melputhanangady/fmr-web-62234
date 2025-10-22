@@ -567,6 +567,10 @@ const ProfileSetup: React.FC = () => {
         );
 
       case 3:
+        // Skip interests step for MatchMaker users
+        if (formData.role === 'matchmaker') {
+          return null;
+        }
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">What are you into?</h2>
@@ -591,6 +595,10 @@ const ProfileSetup: React.FC = () => {
         );
 
       case 4:
+        // Skip preferences step for MatchMaker users
+        if (formData.role === 'matchmaker') {
+          return null;
+        }
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Set your preferences</h2>
@@ -876,13 +884,13 @@ const ProfileSetup: React.FC = () => {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>Step {step + 1} of 9</span>
-            <span>{Math.round(((step + 1) / 9) * 100)}%</span>
+            <span>Step {step + 1} of {formData.role === 'matchmaker' ? 7 : 9}</span>
+            <span>{Math.round(((step + 1) / (formData.role === 'matchmaker' ? 7 : 9)) * 100)}%</span>
           </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(step / 9) * 100}%` }}
+                style={{ width: `${(step / (formData.role === 'matchmaker' ? 6 : 8)) * 100}%` }}
               />
             </div>
         </div>
@@ -891,16 +899,32 @@ const ProfileSetup: React.FC = () => {
 
         <div className="flex justify-between mt-8">
           <button
-            onClick={() => setStep(step - 1)}
-            disabled={step === 1}
+            onClick={() => {
+              let prevStep = step - 1;
+              // Skip steps 3 and 4 for MatchMaker users when going back
+              if (formData.role === 'matchmaker') {
+                if (prevStep === 4) prevStep = 2; // Skip preferences
+                if (prevStep === 3) prevStep = 2; // Skip interests
+              }
+              setStep(prevStep);
+            }}
+            disabled={step === 0}
             className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Previous
           </button>
           
-          {step < 8 ? (
+          {step < (formData.role === 'matchmaker' ? 6 : 8) ? (
             <button
-              onClick={() => setStep(step + 1)}
+              onClick={() => {
+                let nextStep = step + 1;
+                // Skip steps 3 and 4 for MatchMaker users
+                if (formData.role === 'matchmaker') {
+                  if (nextStep === 3) nextStep = 5; // Skip interests
+                  if (nextStep === 4) nextStep = 5; // Skip preferences
+                }
+                setStep(nextStep);
+              }}
               className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
             >
               Next
