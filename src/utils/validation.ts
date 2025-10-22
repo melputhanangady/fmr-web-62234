@@ -382,7 +382,7 @@ export const validateUserProfile = (profile: {
     interestedIn: string;
     cities: string[];
   };
-}, requirePhotos: boolean = true): ValidationResult => {
+}, requirePhotos: boolean = true, role?: string): ValidationResult => {
   const allErrors: string[] = [];
   
   // Validate name fields if they exist (new structure)
@@ -404,17 +404,25 @@ export const validateUserProfile = (profile: {
   const ageResult = validateAge(profile.age);
   const bioResult = validateBio(profile.bio);
   const cityResult = validateCity(profile.city);
-  const interestsResult = validateInterests(profile.interests);
   const photosResult = validatePhotos(profile.photos, requirePhotos);
-  const preferencesResult = validatePreferences(profile.preferences);
+  
+  // Skip interests validation for MatchMaker users
+  if (role !== 'matchmaker') {
+    const interestsResult = validateInterests(profile.interests);
+    allErrors.push(...interestsResult.errors);
+  }
+  
+  // Skip preferences validation for MatchMaker users
+  if (role !== 'matchmaker') {
+    const preferencesResult = validatePreferences(profile.preferences);
+    allErrors.push(...preferencesResult.errors);
+  }
   
   // Collect all errors
   allErrors.push(...ageResult.errors);
   allErrors.push(...bioResult.errors);
   allErrors.push(...cityResult.errors);
-  allErrors.push(...interestsResult.errors);
   allErrors.push(...photosResult.errors);
-  allErrors.push(...preferencesResult.errors);
   
   return {
     isValid: allErrors.length === 0,
