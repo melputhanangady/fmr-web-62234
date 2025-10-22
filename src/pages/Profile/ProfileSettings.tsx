@@ -119,6 +119,12 @@ const ProfileSettings: React.FC = () => {
             // Set user role
             setUserRole(userData.role || 'regular');
             
+            // Redirect MatchMaker users to MatchMaker profile page
+            if (userData.role === 'matchmaker') {
+              navigate('/matchmaker/profile');
+              return;
+            }
+            
             // Get photos from Firebase Storage URLs (stored in Firestore)
             const photos = getUserPhotos(currentUser.uid, userData.photos || []);
             console.log('Photos after getUserPhotos:', photos);
@@ -355,11 +361,6 @@ const ProfileSettings: React.FC = () => {
                 </button>
               )}
             </nav>
-          </div>
-
-          {/* Debug Component */}
-          <div className="p-6">
-            <UserRoleDebug />
           </div>
 
           {/* Content */}

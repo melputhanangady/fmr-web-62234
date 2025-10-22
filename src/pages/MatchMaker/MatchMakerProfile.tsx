@@ -37,6 +37,17 @@ const MatchMakerProfile: React.FC = () => {
     isVerified: false
   });
 
+  // Additional user profile fields
+  const [userProfile, setUserProfile] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    age: 0,
+    bio: '',
+    city: '',
+    photos: [] as string[]
+  });
+
   const [newSpecialty, setNewSpecialty] = useState('');
   const [newDocument, setNewDocument] = useState<File | null>(null);
 
@@ -55,9 +66,42 @@ const MatchMakerProfile: React.FC = () => {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        
+        // Load MatchMaker-specific info
         if (userData.matchmakerInfo) {
           setMatchmakerInfo(userData.matchmakerInfo);
+        } else {
+          // If no matchmakerInfo exists, create it from the main user data
+          setMatchmakerInfo({
+            businessName: userData.businessName || '',
+            licenseNumber: userData.licenseNumber || '',
+            experience: userData.experience || 0,
+            specialties: userData.specialties || [],
+            contactEmail: userData.contactEmail || '',
+            phoneNumber: userData.phoneNumber || '',
+            website: userData.website || '',
+            socialMedia: userData.socialMedia || {
+              instagram: '',
+              linkedin: '',
+              facebook: ''
+            },
+            bio: userData.professionalBio || userData.bio || '',
+            profilePhoto: userData.photos?.[0] || '',
+            verificationDocuments: userData.verificationDocuments || [],
+            isVerified: userData.isMatchmakerVerified || false
+          });
         }
+        
+        // Load basic user profile data
+        setUserProfile({
+          firstName: userData.firstName || '',
+          middleName: userData.middleName || '',
+          lastName: userData.lastName || '',
+          age: userData.age || 0,
+          bio: userData.bio || '',
+          city: userData.city || '',
+          photos: userData.photos || []
+        });
       }
     } catch (error) {
       console.error('Error loading matchmaker info:', error);
@@ -80,7 +124,26 @@ const MatchMakerProfile: React.FC = () => {
       const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, {
         matchmakerInfo: matchmakerInfo,
-        role: 'matchmaker'
+        role: 'matchmaker',
+        // Update basic user profile fields
+        firstName: userProfile.firstName,
+        middleName: userProfile.middleName,
+        lastName: userProfile.lastName,
+        age: userProfile.age,
+        bio: userProfile.bio,
+        city: userProfile.city,
+        photos: userProfile.photos,
+        // Update MatchMaker fields directly in user document
+        businessName: matchmakerInfo.businessName,
+        licenseNumber: matchmakerInfo.licenseNumber,
+        experience: matchmakerInfo.experience,
+        specialties: matchmakerInfo.specialties,
+        contactEmail: matchmakerInfo.contactEmail,
+        phoneNumber: matchmakerInfo.phoneNumber,
+        website: matchmakerInfo.website,
+        socialMedia: matchmakerInfo.socialMedia,
+        professionalBio: matchmakerInfo.bio,
+        verificationDocuments: matchmakerInfo.verificationDocuments
       });
 
       toast({
@@ -194,10 +257,81 @@ const MatchMakerProfile: React.FC = () => {
 
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
+            {/* Personal Information */}
             <Card>
               <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
+                <CardTitle>Personal Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      value={userProfile.firstName}
+                      onChange={(e) => setUserProfile(prev => ({ ...prev, firstName: e.target.value }))}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="middleName">Middle Name</Label>
+                    <Input
+                      id="middleName"
+                      value={userProfile.middleName}
+                      onChange={(e) => setUserProfile(prev => ({ ...prev, middleName: e.target.value }))}
+                      placeholder="Enter your middle name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      id="lastName"
+                      value={userProfile.lastName}
+                      onChange={(e) => setUserProfile(prev => ({ ...prev, lastName: e.target.value }))}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="age">Age *</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      value={userProfile.age}
+                      onChange={(e) => setUserProfile(prev => ({ ...prev, age: parseInt(e.target.value) || 0 }))}
+                      placeholder="Enter your age"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      value={userProfile.city}
+                      onChange={(e) => setUserProfile(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder="Enter your city"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="personalBio">Personal Bio</Label>
+                  <Textarea
+                    id="personalBio"
+                    value={userProfile.bio}
+                    onChange={(e) => setUserProfile(prev => ({ ...prev, bio: e.target.value }))}
+                    placeholder="Tell us about yourself..."
+                    rows={3}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Business Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Business Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
