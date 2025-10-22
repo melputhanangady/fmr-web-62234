@@ -7,6 +7,7 @@ import PhotoUpload from '../../components/PhotoUpload/PhotoUpload';
 import { isDemoMode } from '../../utils/demoMode';
 import { savePhotosToLocal, getUserPhotos } from '../../utils/photoStorage';
 import { useToast } from '@/hooks/use-toast';
+import { doc, getDoc } from 'firebase/firestore';
 
 const INTERESTS = [
   'Travel', 'Music', 'Sports', 'Art', 'Food', 'Movies', 'Books', 'Fitness',
@@ -45,6 +46,7 @@ const ProfileSettings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences'>('profile');
+  const [userRole, setUserRole] = useState<'regular' | 'matchmaker' | 'admin'>('regular');
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -113,6 +115,10 @@ const ProfileSettings: React.FC = () => {
             const userData = userDoc.data();
             console.log('Profile data loaded:', userData);
             console.log('Photos from Firestore:', userData.photos);
+            
+            // Set user role
+            setUserRole(userData.role || 'regular');
+            
             // Get photos from Firebase Storage URLs (stored in Firestore)
             const photos = getUserPhotos(currentUser.uid, userData.photos || []);
             console.log('Photos after getUserPhotos:', photos);
@@ -335,16 +341,19 @@ const ProfileSettings: React.FC = () => {
               >
                 Profile
               </button>
-              <button
-                onClick={() => setActiveTab('preferences')}
-                className={`px-6 py-4 text-sm font-medium ${
-                  activeTab === 'preferences'
-                    ? 'text-primary-500 border-b-2 border-primary-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Preferences
-              </button>
+              {/* Hide Preferences tab for MatchMaker users */}
+              {userRole !== 'matchmaker' && (
+                <button
+                  onClick={() => setActiveTab('preferences')}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === 'preferences'
+                      ? 'text-primary-500 border-b-2 border-primary-500'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Preferences
+                </button>
+              )}
             </nav>
           </div>
 
