@@ -357,6 +357,11 @@ const ProfileSettings: React.FC = () => {
             </nav>
           </div>
 
+          {/* Debug Component */}
+          <div className="p-6">
+            <UserRoleDebug />
+          </div>
+
           {/* Content */}
           <div className="p-6">
             {activeTab === 'profile' ? (
