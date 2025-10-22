@@ -208,7 +208,12 @@ const ProfileSetup: React.FC = () => {
       ...sanitizedData,
       age: parseInt(formData.age),
       photos: formData.photos,
-      preferences: formData.preferences
+      preferences: formData.preferences,
+      // MatchMaker-specific fields
+      businessName: formData.businessName,
+      contactEmail: formData.contactEmail,
+      experience: formData.experience,
+      professionalBio: formData.professionalBio
     }, false, formData.role); // Pass role for role-based validation
 
     if (!validationResult.isValid) {

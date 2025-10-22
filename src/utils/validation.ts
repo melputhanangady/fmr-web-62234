@@ -382,6 +382,11 @@ export const validateUserProfile = (profile: {
     interestedIn: string;
     cities: string[];
   };
+  // MatchMaker-specific fields
+  businessName?: string;
+  contactEmail?: string;
+  experience?: number;
+  professionalBio?: string;
 }, requirePhotos: boolean = true, role?: string): ValidationResult => {
   const allErrors: string[] = [];
   
@@ -416,6 +421,41 @@ export const validateUserProfile = (profile: {
   if (role !== 'matchmaker') {
     const preferencesResult = validatePreferences(profile.preferences);
     allErrors.push(...preferencesResult.errors);
+  }
+  
+  // Add MatchMaker-specific validation
+  if (role === 'matchmaker') {
+    // Validate MatchMaker fields if they exist in the profile
+    if (profile.businessName !== undefined) {
+      if (!profile.businessName || profile.businessName.trim().length === 0) {
+        allErrors.push('Business name is required for MatchMaker users');
+      } else if (profile.businessName.length > 100) {
+        allErrors.push('Business name must be less than 100 characters');
+      }
+    }
+    
+    if (profile.contactEmail !== undefined) {
+      const emailResult = validateEmail(profile.contactEmail);
+      allErrors.push(...emailResult.errors);
+    }
+    
+    if (profile.experience !== undefined) {
+      if (profile.experience < 0) {
+        allErrors.push('Experience must be a positive number');
+      } else if (profile.experience > 50) {
+        allErrors.push('Experience cannot exceed 50 years');
+      }
+    }
+    
+    if (profile.professionalBio !== undefined) {
+      if (!profile.professionalBio || profile.professionalBio.trim().length === 0) {
+        allErrors.push('Professional bio is required for MatchMaker users');
+      } else if (profile.professionalBio.length < 10) {
+        allErrors.push('Professional bio must be at least 10 characters');
+      } else if (profile.professionalBio.length > 1000) {
+        allErrors.push('Professional bio must be less than 1000 characters');
+      }
+    }
   }
   
   // Collect all errors
