@@ -24,30 +24,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
 
     const checkProfile = async (retryCount = 0) => {
       try {
-        console.log(`ProtectedRoute: Checking profile for user: ${currentUser.uid} (attempt ${retryCount + 1})`);
         if (isDemoMode()) {
           // In demo mode, check localStorage for profile
           const demoProfile = localStorage.getItem('demo-user-profile');
           setProfileExists(!!demoProfile);
         } else {
           // In production mode, check Firestore
-          console.log('Production mode: Checking Firestore for user document...');
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          console.log('Firestore check result:', userDoc.exists());
           
           if (userDoc.exists()) {
-            console.log('User document data:', userDoc.data());
-            console.log('Setting profileExists to true...');
             setProfileExists(true);
             setHasCheckedProfile(true);
-            console.log('profileExists state should now be true');
           } else if (retryCount < 2) {
             // If profile doesn't exist and we haven't retried too many times, retry after a delay
-            console.log(`Profile not found on attempt ${retryCount + 1}, retrying in ${(retryCount + 1) * 500}ms...`);
             setTimeout(() => checkProfile(retryCount + 1), (retryCount + 1) * 500);
             return;
           } else {
-            console.log('Profile not found after all retries');
             setProfileExists(false);
             setHasCheckedProfile(true);
           }
@@ -79,11 +71,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
     return <Navigate to="/login" replace />;
   }
 
-  console.log('ProtectedRoute render: profileExists =', profileExists, 'requireProfile =', requireProfile, 'loading =', loading, 'checkingProfile =', checkingProfile, 'hasCheckedProfile =', hasCheckedProfile);
 
   // If we're still checking the profile, show loading
   if (requireProfile && !hasCheckedProfile) {
-    console.log('ProtectedRoute: Still checking profile, showing loading...');
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center">
         <div className="text-center">
@@ -95,13 +85,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
   }
 
   if (requireProfile && profileExists === false) {
-    console.log('ProtectedRoute: Profile does not exist, redirecting to onboarding');
-    console.log('ProtectedRoute: profileExists =', profileExists, 'requireProfile =', requireProfile);
     return <Navigate to="/onboarding" replace />;
   }
 
   if (requireProfile && profileExists === true) {
-    console.log('ProtectedRoute: Profile exists, allowing access to protected route');
   }
 
   return <>{children}</>;

@@ -128,7 +128,6 @@ const DiscoverQueue: React.FC = () => {
         const currentUserProfile = localStorage.getItem('demo-user-profile');
         if (currentUserProfile) {
           const userData = JSON.parse(currentUserProfile);
-          console.log('Current user profile from localStorage:', userData);
           
           const currentUserProfileData = {
             ...userData,
@@ -136,7 +135,6 @@ const DiscoverQueue: React.FC = () => {
             photos: userData.photos || [] // Use photos directly from profile data
           };
           
-          console.log('Current user profile data:', currentUserProfileData);
           setUsers([currentUserProfileData, ...demoUsers]);
         } else {
           setUsers(demoUsers);

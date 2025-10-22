@@ -111,8 +111,6 @@ const ProfileSettings: React.FC = () => {
           
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            console.log('Profile data loaded:', userData);
-            console.log('Photos from Firestore:', userData.photos);
             
             // Set user role
             setUserRole(userData.role || 'regular');

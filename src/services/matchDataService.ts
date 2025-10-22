@@ -71,7 +71,6 @@ export const getSuccessfulMatches = async (): Promise<any[]> => {
     const usersRef = collection(db, 'users');
     const usersSnapshot = await getDocs(usersRef);
     
-    console.log(`Found ${usersSnapshot.size} users in database`);
     
     const successfulMatches: any[] = [];
     const processedPairs = new Set<string>();
@@ -87,7 +86,6 @@ export const getSuccessfulMatches = async (): Promise<any[]> => {
       const userId = doc.id;
       const userMatches = userData.matches || [];
       
-      console.log(`User ${userId} (${userData.name}): has ${userMatches.length} matches:`, userMatches);
       
       // For each match ID, find users who share the same match ID
       userMatches.forEach((matchId: string) => {

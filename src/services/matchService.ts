@@ -131,10 +131,6 @@ export const likeUser = async (currentUserId: string, likedUserId: string): Prom
     
     if (likedUserDoc.exists()) {
       const likedUserData = likedUserDoc.data() as User;
-      console.log('Liked user data:', { 
-        likedUsers: likedUserData.likedUsers, 
-        includesCurrentUser: likedUserData.likedUsers.includes(currentUserId) 
-      });
       
       if (likedUserData.likedUsers.includes(currentUserId)) {
         console.log('Mutual like detected! Creating match...');
