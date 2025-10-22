@@ -25,10 +25,8 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const fetchUserData = async (userId: string) => {
-      console.log('Header: fetchUserData called for userId:', userId);
       
       if (!userId) {
-        console.log('Header: No userId, clearing user data');
         setUserName('');
         setFirstName('');
         setUserPhoto('');
@@ -54,11 +52,9 @@ const Header: React.FC = () => {
           setIsMatchMaker(false);
         } else {
           // In production mode, get data from Firestore
-          console.log('Header: Production mode - fetching from Firestore for user:', userId);
           const userDoc = await getDoc(doc(db, 'users', userId));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            console.log('Header: Firestore user data:', userData);
             setUserName(userData.name || 'User');
             setFirstName(userData.firstName || userData.name?.split(' ')[0] || 'User');
             setUserPhoto(userData.photos?.[0] || '');
@@ -68,7 +64,6 @@ const Header: React.FC = () => {
             setIsAdminUser(adminStatus);
             setIsMatchMaker(userData.role === 'matchmaker');
           } else {
-            console.log('Header: No user document found in Firestore');
             setUserName('User');
             setFirstName('User');
             setUserPhoto('');
@@ -88,7 +83,6 @@ const Header: React.FC = () => {
 
     // Listen to auth state changes directly
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Header: Auth state changed, user:', user?.uid);
       if (user) {
         fetchUserData(user.uid);
       } else {
