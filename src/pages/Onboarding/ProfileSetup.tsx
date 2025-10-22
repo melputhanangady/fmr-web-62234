@@ -680,6 +680,10 @@ const ProfileSetup: React.FC = () => {
         );
 
       case 5:
+        // Skip "Tell us more about yourself" step for MatchMaker users
+        if (formData.role === 'matchmaker') {
+          return null;
+        }
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Tell us more about yourself</h2>
@@ -766,6 +770,10 @@ const ProfileSetup: React.FC = () => {
         );
 
       case 6:
+        // Skip "Hobbies & interests" step for MatchMaker users
+        if (formData.role === 'matchmaker') {
+          return null;
+        }
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Your hobbies & interests</h2>
@@ -884,13 +892,13 @@ const ProfileSetup: React.FC = () => {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>Step {step + 1} of {formData.role === 'matchmaker' ? 7 : 9}</span>
-            <span>{Math.round(((step + 1) / (formData.role === 'matchmaker' ? 7 : 9)) * 100)}%</span>
+            <span>Step {step + 1} of {formData.role === 'matchmaker' ? 5 : 9}</span>
+            <span>{Math.round(((step + 1) / (formData.role === 'matchmaker' ? 5 : 9)) * 100)}%</span>
           </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(step / (formData.role === 'matchmaker' ? 6 : 8)) * 100}%` }}
+                style={{ width: `${(step / (formData.role === 'matchmaker' ? 4 : 8)) * 100}%` }}
               />
             </div>
         </div>
@@ -901,8 +909,10 @@ const ProfileSetup: React.FC = () => {
           <button
             onClick={() => {
               let prevStep = step - 1;
-              // Skip steps 3 and 4 for MatchMaker users when going back
+              // Skip steps 3, 4, 5, and 6 for MatchMaker users when going back
               if (formData.role === 'matchmaker') {
+                if (prevStep === 6) prevStep = 2; // Skip "Hobbies & interests"
+                if (prevStep === 5) prevStep = 2; // Skip "Tell us more about yourself"
                 if (prevStep === 4) prevStep = 2; // Skip preferences
                 if (prevStep === 3) prevStep = 2; // Skip interests
               }
@@ -914,14 +924,16 @@ const ProfileSetup: React.FC = () => {
             Previous
           </button>
           
-          {step < (formData.role === 'matchmaker' ? 6 : 8) ? (
+          {step < (formData.role === 'matchmaker' ? 4 : 8) ? (
             <button
               onClick={() => {
                 let nextStep = step + 1;
-                // Skip steps 3 and 4 for MatchMaker users
+                // Skip steps 3, 4, 5, and 6 for MatchMaker users
                 if (formData.role === 'matchmaker') {
-                  if (nextStep === 3) nextStep = 5; // Skip interests
-                  if (nextStep === 4) nextStep = 5; // Skip preferences
+                  if (nextStep === 3) nextStep = 7; // Skip interests
+                  if (nextStep === 4) nextStep = 7; // Skip preferences
+                  if (nextStep === 5) nextStep = 7; // Skip "Tell us more about yourself"
+                  if (nextStep === 6) nextStep = 7; // Skip "Hobbies & interests"
                 }
                 setStep(nextStep);
               }}
