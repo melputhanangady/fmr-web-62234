@@ -179,9 +179,12 @@ const Header: React.FC = () => {
               <p className="text-xs text-muted-foreground">Signed in</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleProfileClick}>
-              👤 Profile Settings
-            </DropdownMenuItem>
+            {/* Hide Profile Settings for MatchMaker users */}
+            {!isMatchMaker && (
+              <DropdownMenuItem onClick={handleProfileClick}>
+                👤 Profile Settings
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={handleMatchesClick}>
               💕 My Matches
             </DropdownMenuItem>
