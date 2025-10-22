@@ -239,9 +239,7 @@ const ProfileSetup: React.FC = () => {
 
       if (isDemoMode()) {
         // In demo mode, just store in localStorage
-        console.log('Demo mode: Storing profile in localStorage');
         localStorage.setItem('demo-user-profile', JSON.stringify(userData));
-        console.log('Demo mode: Profile stored, navigating to discover...');
         toast({
           title: "Success",
           description: "Profile created successfully! (Demo mode)",

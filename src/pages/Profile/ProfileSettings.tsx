@@ -82,7 +82,6 @@ const ProfileSettings: React.FC = () => {
         console.log('Loading profile for user:', currentUser.uid);
         
         if (isDemoMode()) {
-          console.log('Loading demo profile from localStorage');
           const demoProfile = localStorage.getItem('demo-user-profile');
           if (demoProfile) {
             const userData = JSON.parse(demoProfile);
@@ -104,7 +103,6 @@ const ProfileSettings: React.FC = () => {
               }
             });
           } else {
-            console.log('No demo profile found, using defaults');
             // Keep default profile values
           }
         } else {

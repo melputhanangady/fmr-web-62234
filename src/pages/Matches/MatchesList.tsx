@@ -19,7 +19,6 @@ const MatchesList: React.FC = () => {
       // Get user's match IDs from localStorage
       const userMatches = JSON.parse(localStorage.getItem(`demo-user-matches-${userId}`) || '[]');
       
-      console.log('Loading demo matches for user:', userId);
       console.log('User matches from localStorage:', userMatches);
       
       if (userMatches.length === 0) {
@@ -29,14 +28,12 @@ const MatchesList: React.FC = () => {
 
       // Get all demo matches
       const allMatches = JSON.parse(localStorage.getItem('demo-matches') || '[]');
-      console.log('All demo matches:', allMatches);
       
       const userMatchObjects = allMatches.filter((match: any) => userMatches.includes(match.id));
       console.log('User match objects:', userMatchObjects);
       
       // Get demo users for profile data
       const demoUsers = getDemoUsers();
-      console.log('Demo users:', demoUsers);
       const matches: ChatUser[] = [];
       
       for (const match of userMatchObjects) {
@@ -172,10 +169,6 @@ const MatchesList: React.FC = () => {
                 onClick={() => {
                   console.log('=== DEBUG INFO ===');
                   console.log('Current user ID:', currentUser?.uid);
-                  console.log('Demo matches:', JSON.parse(localStorage.getItem('demo-matches') || '[]'));
-                  console.log('User matches:', JSON.parse(localStorage.getItem(`demo-user-matches-${currentUser?.uid}`) || '[]'));
-                  console.log('User likes:', JSON.parse(localStorage.getItem(`demo-likes-${currentUser?.uid}`) || '[]'));
-                  console.log('Demo user profile:', JSON.parse(localStorage.getItem('demo-user-profile') || '{}'));
                 }}
                 className="mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
               >

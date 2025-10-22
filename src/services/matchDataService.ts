@@ -62,7 +62,6 @@ export interface MatchDataCollection {
 export const getSuccessfulMatches = async (): Promise<any[]> => {
   try {
     if (isDemoMode()) {
-      console.log('Demo mode: No matches available');
       return [];
     }
 
@@ -154,7 +153,6 @@ export const storeMatchData = async (
 ): Promise<boolean> => {
   try {
     if (isDemoMode()) {
-      console.log('Demo mode: Match data would be stored');
       return true;
     }
 

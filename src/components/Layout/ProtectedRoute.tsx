@@ -28,7 +28,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireProfil
         if (isDemoMode()) {
           // In demo mode, check localStorage for profile
           const demoProfile = localStorage.getItem('demo-user-profile');
-          console.log('Demo mode: Profile exists in localStorage:', !!demoProfile);
           setProfileExists(!!demoProfile);
         } else {
           // In production mode, check Firestore

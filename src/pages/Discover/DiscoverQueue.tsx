@@ -26,7 +26,6 @@ const DiscoverQueue: React.FC = () => {
   // Demo mode match simulation
   const simulateDemoLike = async (currentUserId: string, likedUserId: string): Promise<boolean> => {
     try {
-      console.log(`Simulating demo like: ${currentUserId} likes ${likedUserId}`);
       
       // Get current user's liked users from localStorage
       const currentUserLikes = JSON.parse(localStorage.getItem(`demo-likes-${currentUserId}`) || '[]');
@@ -85,13 +84,11 @@ const DiscoverQueue: React.FC = () => {
         createdAt: new Date().toISOString()
       };
 
-      console.log('Creating demo match:', match);
 
       // Save match to localStorage
       const existingMatches = JSON.parse(localStorage.getItem('demo-matches') || '[]');
       existingMatches.push(match);
       localStorage.setItem('demo-matches', JSON.stringify(existingMatches));
-      console.log('Saved match to demo-matches:', existingMatches);
 
       // Add match to both users' matches
       const user1Matches = JSON.parse(localStorage.getItem(`demo-user-matches-${userId1}`) || '[]');
@@ -121,16 +118,11 @@ const DiscoverQueue: React.FC = () => {
       console.log('Setting loading to true');
       setLoading(true);
       
-      console.log('Checking demo mode...');
       const demoMode = isDemoMode();
-      console.log('Demo mode result:', demoMode);
       
       if (demoMode) {
-        console.log('Running in demo mode');
         // In demo mode, use demo users
         const demoUsers = getDemoUsers();
-        console.log('Demo users loaded:', demoUsers);
-        console.log('Demo users count:', demoUsers.length);
         
         // Add current user's profile as the first profile to see their own photos
         const currentUserProfile = localStorage.getItem('demo-user-profile');
@@ -145,10 +137,8 @@ const DiscoverQueue: React.FC = () => {
           };
           
           console.log('Current user profile data:', currentUserProfileData);
-          console.log('Setting users with current user first:', [currentUserProfileData, ...demoUsers]);
           setUsers([currentUserProfileData, ...demoUsers]);
         } else {
-          console.log('No current user profile found, setting demo users only');
           setUsers(demoUsers);
         }
         setCurrentUserIndex(0);

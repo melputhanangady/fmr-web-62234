@@ -11,12 +11,6 @@ export const isDemoMode = () => {
   // Otherwise, use demo mode only if Firebase is not properly configured
   const isDemo = forceDemo || !hasFirebaseConfig;
   
-  console.log('Demo mode check:', {
-    apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : 'undefined',
-    hasFirebaseConfig,
-    forceDemo,
-    isDemoMode: isDemo
-  });
   
   return isDemo;
 };

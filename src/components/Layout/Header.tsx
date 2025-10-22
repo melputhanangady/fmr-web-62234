@@ -41,12 +41,10 @@ const Header: React.FC = () => {
           const demoProfile = localStorage.getItem('demo-user-profile');
           if (demoProfile) {
             const userData = JSON.parse(demoProfile);
-            console.log('Header: Demo mode - setting user data:', userData.name);
             setUserName(userData.name || 'User');
             setFirstName(userData.firstName || userData.name?.split(' ')[0] || 'User');
             setUserPhoto(userData.photos?.[0] || '');
           } else {
-            console.log('Header: Demo mode - no demo profile found');
             setUserName('User');
             setFirstName('User');
             setUserPhoto('');
